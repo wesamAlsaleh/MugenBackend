@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: Mugen
+  datasource:
+    url: jdbc:mysql://localhost:3306/mugen?createDatabaseIfNotExist=true
+    username: root
+    password: Toni2020@
