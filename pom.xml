@@ -64,6 +64,17 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- #4 as starter "flyway migration"-->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-mysql</artifactId>
+        </dependency>
+
+
     </dependencies>
 
     <build>
