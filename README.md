@@ -1,1 +1,1 @@
-Add readme file 
+This is the backend of an application called "Mugen", it's a spring boot project for learning purposes.

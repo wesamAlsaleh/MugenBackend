@@ -4,6 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.springframework.boot</groupId>
+        <!-- This contains all the versions for the spring-boot-starter family-->
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.5.5</version>
         <relativePath/> <!-- lookup parent from repository -->
@@ -44,7 +45,11 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- #1 -->
+        <!-- #1 "spring-boot-starter-web"-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
 
 
 
