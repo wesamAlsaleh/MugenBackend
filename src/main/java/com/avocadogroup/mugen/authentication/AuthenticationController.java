@@ -2,14 +2,12 @@ package com.avocadogroup.mugen.authentication;
 
 import com.avocadogroup.mugen.authentication.dtos.LoginRequest;
 import com.avocadogroup.mugen.authentication.dtos.RegisterRequest;
+import com.avocadogroup.mugen.authentication.services.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
@@ -45,14 +43,29 @@ public class AuthenticationController {
             @Valid @RequestBody LoginRequest request
     ) {
         try{
-        // Try to log in the user (if credentials are invalid, an exception will be thrown)
-        authenticationService.login(request);
+        // Try to log in the user and return the JwtTokenResponse (if credentials are invalid, an exception will be thrown)
+        var tokens = authenticationService.login(request);
 
-        // Return a 200 OK response (no body for now)
-        return ResponseEntity.ok().build();
+        // Return a 200 OK response with the JwtTokenResponse in the body
+        return ResponseEntity.ok(tokens);
         } catch (Exception e) {
             // In case of any exception (e.g., invalid credentials), return a 401 Unauthorized response
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
+    }
+
+    // API Endpoint for user profile (get current user info)
+    @GetMapping("/me")
+    public ResponseEntity<?> me() {
+        try{
+        // Try to get the current authenticated user's details
+        var userDto = authenticationService.me();
+
+        // Return a 200 OK response with the UserDto in the body
+        return ResponseEntity.ok(userDto);
+        } catch (Exception e) {
+            // In case of any exception (e.g., user not authenticated), return a 401 Unauthorized response
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized, " + e.getMessage());
         }
     }
 

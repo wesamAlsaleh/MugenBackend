@@ -1,6 +1,9 @@
 package com.avocadogroup.mugen.configs;
 
+import com.avocadogroup.mugen.authentication.AuthenticationFilter;
 import com.avocadogroup.mugen.authentication.UserDetailsServiceImpl;
+import com.avocadogroup.mugen.authentication.services.JwtService;
+import com.avocadogroup.mugen.users.enums.UserRole;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,12 +19,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration // Mark this class as a configuration class to define beans at runtime
 @EnableWebSecurity // Enable Spring Security's web security support
 @AllArgsConstructor // Lombok annotation to generate a constructor with parameters for all fields
 public class SecurityConfig {
     private final UserDetailsServiceImpl userDetailsService;
+    private final AuthenticationFilter authenticationFilter;
 
     // Function to configure the security configuration
     @Bean // Define this method as a bean to be managed by Spring
@@ -35,13 +40,16 @@ public class SecurityConfig {
 
         // Define endpoint access rules (what endpoints that requires authentication and what not "Public/Permit")
         http.authorizeHttpRequests(request ->
-                // Public endpoints (no authentication required)
                 request
-                        .requestMatchers("/**").permitAll()
+                // Public endpoints (no authentication required)
                         .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
-                // TODO: All other endpoints (authentication required)
-                // TODO: Admins Endpoints
-        );
+                // Admins Endpoints
+                        .requestMatchers("/admin/**").hasRole(UserRole.ADMIN.name()) // Only users with ADMIN role can access /admin/**
+                // All other endpoints (authentication required)
+                        .anyRequest().authenticated()
+        )
+                .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class); // Add the custom AuthenticationFilter before the UsernamePasswordAuthenticationFilter which is a built-in filter in Spring Security that processes authentication requests
+
 
         // Build and return the configured SecurityFilterChain (Configuration object to be used by Spring Security at runtime)
         return http.build();

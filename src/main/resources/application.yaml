@@ -5,3 +5,9 @@ spring:
     url: jdbc:mysql://localhost:3306/mugen?createDatabaseIfNotExist=true
     username: root
     password: Toni2020@
+  jpa:
+    show-sql: true
+  jwt:
+    secret-key: ${JWT_SECRET}
+    access-token-expiration-time: 604800 #  7 days in seconds TODO: change to 900 `15 mins in seconds` for production
+    refresh-token-expiration-time: 604800000 # 7 days in seconds
