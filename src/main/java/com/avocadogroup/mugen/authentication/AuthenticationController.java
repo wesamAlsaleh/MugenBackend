@@ -1,12 +1,11 @@
 package com.avocadogroup.mugen.authentication;
 
-import com.avocadogroup.mugen.authentication.dtos.AuthDto;
+import com.avocadogroup.mugen.authentication.dtos.LoginRequest;
 import com.avocadogroup.mugen.authentication.dtos.RegisterRequest;
-import com.avocadogroup.mugen.users.dtos.UserDto;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +20,7 @@ public class AuthenticationController {
 
     // API Endpoint for user registration
     @PostMapping("/register")
-    public ResponseEntity<AuthDto> registerUser(
+    public ResponseEntity<?> registerUser(
             @Valid @RequestBody RegisterRequest request,
             UriComponentsBuilder uriBuilder
     ) {
@@ -36,11 +35,27 @@ public class AuthenticationController {
             return ResponseEntity.created(uri).body(authDto);
         } catch (Exception e) {
             // In case of any exception, return a 400 Bad Request response
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
-    // TODO: API Endpoint for user login
+    // API Endpoint for user login
+    @PostMapping("/login")
+    public ResponseEntity<?> login(
+            @Valid @RequestBody LoginRequest request
+    ) {
+        try{
+        // Try to log in the user (if credentials are invalid, an exception will be thrown)
+        authenticationService.login(request);
+
+        // Return a 200 OK response (no body for now)
+        return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            // In case of any exception (e.g., invalid credentials), return a 401 Unauthorized response
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+        }
+    }
+
     // TODO: API Endpoint for token refresh
     // TODO: API Endpoint for password reset
     // TODO: API Endpoint for email verification

@@ -4,6 +4,7 @@ import com.avocadogroup.mugen.global.dtos.ErrorDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,7 +24,7 @@ public class GlobalExceptionHandler {
         // Initialize errors array
         var errors = new HashMap<String,String>();
 
-        // Iterate over the errors and put the inside an array []
+        // Iterate through all field errors and add them to the errors map
         exception.getBindingResult().getFieldErrors().forEach(error -> {
             // EX: ["email", "must be a well-formed email address"]
             errors.put(error.getField(), error.getDefaultMessage());
@@ -85,4 +86,7 @@ public class GlobalExceptionHandler {
         // Return bad request error if the body is unreadable
         return ResponseEntity.badRequest().body(new ErrorDto("Unreadable Message, Please make a valid request body"));
     }
+
+
+
 }
