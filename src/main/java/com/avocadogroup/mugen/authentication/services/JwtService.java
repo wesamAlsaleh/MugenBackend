@@ -26,7 +26,7 @@ public class JwtService {
                 .claim("role", user.getRole()) // Bonus Claims
                 .issuedAt(new Date()) // Token issue time
                 .expiration(new Date(System.currentTimeMillis() + 1000 * tokenExpiration)) // Expiry time in milliseconds
-                .signWith(Keys.hmacShaKeyFor(jwtConfig.getSecretKey().getBytes())) // Signature for security using the secret key
+                .signWith(jwtConfig.getSecretKey()) // Signature for security using the secret key
                 .compact();
     }
 
@@ -34,7 +34,7 @@ public class JwtService {
     private Claims getTokenClaims(String jwtToken) {
         // Parse the JWT token and return the claims
         return Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor(jwtConfig.getSecretKey().getBytes())) // Verify the token using the secret key
+                .verifyWith(jwtConfig.getSecretKey()) // Verify the token using the secret key
                 .build() // Build the parser instance after setting the verification key
                 .parseSignedClaims(jwtToken) // Parse the signed JWT token
                 .getPayload(); // Get the claims (data) from the token
@@ -42,7 +42,7 @@ public class JwtService {
 
     // Function to generate JWT tokens
     public String generateAccessToken(User user) {
-        final long tokenExpiration = jwtConfig.getAccessTokenExpirationTime(); // Access token expiration time in seconds
+        final long tokenExpiration = jwtConfig.getAccessTokenExpirationTime(); // Access token expiration time in seconds (15 minutes todo(now 7 days for testing))
 
         // Build Json Web token using the jwt builder
         return buildJwtToken(user, tokenExpiration);
@@ -50,7 +50,7 @@ public class JwtService {
 
     // Function to generate refresh tokens
     public String generateRefreshToken(User user) {
-        final long tokenExpiration = jwtConfig.getRefreshTokenExpirationTime(); // Refresh token expiration time in seconds
+        final long tokenExpiration = jwtConfig.getRefreshTokenExpirationTime(); // Refresh token expiration time in seconds (7 days)
 
         // Build Json Web token using the jwt builder
         return buildJwtToken(user, tokenExpiration);
@@ -62,7 +62,7 @@ public class JwtService {
             // Parse the token and extract the claims (payload)
             var claims = getTokenClaims(jwtToken);
 
-            // Return true if the token is expired (expiration is before now)
+            // Return true if the token is expired (expiration date is before the current date)
             return claims.getExpiration().before(new Date());
         } catch (JwtException e) {
             // If parsing the token fails, consider it expired

@@ -5,6 +5,7 @@ import com.avocadogroup.mugen.authentication.dtos.AuthDto;
 import com.avocadogroup.mugen.authentication.dtos.JwtTokenResponse;
 import com.avocadogroup.mugen.authentication.dtos.LoginRequest;
 import com.avocadogroup.mugen.authentication.dtos.RegisterRequest;
+import com.avocadogroup.mugen.global.exceptions.BadRequestException;
 import com.avocadogroup.mugen.global.exceptions.DuplicateResourceException;
 import com.avocadogroup.mugen.global.exceptions.ResourceNotFoundException;
 import com.avocadogroup.mugen.users.UserMapper;
@@ -65,11 +66,13 @@ public class AuthenticationService {
         // Generate an access token (JWT) for the authenticated user
         var accessToken = jwtService.generateAccessToken(user);
 
-        // Wrap the token in a JwtTokenResponse object {token:"abc"}
-        var tokenResponse = new JwtTokenResponse(accessToken);
+        // Generate a refresh token (JWT) for the authenticated user
+         var refreshToken = jwtService.generateRefreshToken(user);
 
-        // Return the token
-        return tokenResponse;
+        // TODO: Save the refresh token in the database or cache (if you want to implement refresh token revocation)
+
+        // Wrap and return the token in a JwtTokenResponse object {accessToken:"abc"}
+         return new JwtTokenResponse(accessToken, refreshToken);
     }
 
     // Function to get the currently authenticated user's details from the security context holder
@@ -87,4 +90,31 @@ public class AuthenticationService {
         // Return the user as a UserDto
         return userMapper.toDto(user);
     }
+
+    // Function to refresh access token using a valid refresh token
+    public JwtTokenResponse refresh(String refreshToken){
+        // Check if the refresh token is expired
+        if(jwtService.isTokenExpired(refreshToken)){
+            throw new BadRequestException("Your session has expired, please log in again");
+        }
+
+        // Extract the user ID from the refresh token
+        var userId = jwtService.getUserIdFromToken(refreshToken);
+
+        // Fetch the user from the database using the user ID
+        var user = userRepository.findById(userId)
+                .orElseThrow(()-> new ResourceNotFoundException("User not found")); // This should never throw since the token is valid
+
+        // Generate a new access token (JWT) for the user
+        var newAccessToken = jwtService.generateAccessToken(user);
+
+        // Refresh token rotation: Generate a new refresh token (JWT) for the user
+        var newRefreshToken = jwtService.generateRefreshToken(user);
+
+        // TODO: Save the refresh token in the database or cache (if you want to implement refresh token revocation)
+
+        // Wrap and return the new tokens in a JwtTokenResponse object {accessToken:"abc", refreshToken:"xyz"}
+        return new JwtTokenResponse(newAccessToken, newRefreshToken);
+    }
+
 }

@@ -1,8 +1,11 @@
 package com.avocadogroup.mugen.authentication;
 
+import com.avocadogroup.mugen.authentication.dtos.JwtTokenResponse;
 import com.avocadogroup.mugen.authentication.dtos.LoginRequest;
+import com.avocadogroup.mugen.authentication.dtos.RefreshTokenRequest;
 import com.avocadogroup.mugen.authentication.dtos.RegisterRequest;
 import com.avocadogroup.mugen.authentication.services.AuthenticationService;
+import com.avocadogroup.mugen.global.dtos.ErrorDto;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,7 +21,7 @@ public class AuthenticationController {
 
     // API Endpoint for user registration
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(
+    public ResponseEntity<?> register(
             @Valid @RequestBody RegisterRequest request,
             UriComponentsBuilder uriBuilder
     ) {
@@ -37,7 +40,7 @@ public class AuthenticationController {
         }
     }
 
-    // API Endpoint for user login
+    // API Endpoint for user login (Mobile clients)
     @PostMapping("/login")
     public ResponseEntity<?> login(
             @Valid @RequestBody LoginRequest request
@@ -69,8 +72,24 @@ public class AuthenticationController {
         }
     }
 
-    // TODO: API Endpoint for token refresh
+    // TODO: API Endpoint for token refresh (mobile clients)
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(
+            @Valid @RequestBody RefreshTokenRequest request
+    ) {
+        // Try to refresh the access token using the refresh token
+        try {
+        var tokens = authenticationService.refresh(request.getRefreshToken());
+
+        // Return a 200 OK response with the new tokens in the body
+        return ResponseEntity.ok(tokens);
+        } catch (Exception e) {
+            // In case of any exception (e.g., invalid refresh token), return a 401 Unauthorized response
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorDto("Session expired, please log in again"));
+        }
+    }
+
     // TODO: API Endpoint for password reset
-    // TODO: API Endpoint for email verification
+    // TODO: API Endpoint for email verification (maybe)
     // TODO: API Endpoint for logout
 }

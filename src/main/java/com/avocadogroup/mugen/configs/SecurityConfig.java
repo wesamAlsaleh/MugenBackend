@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -19,6 +20,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration // Mark this class as a configuration class to define beans at runtime
@@ -42,13 +44,21 @@ public class SecurityConfig {
         http.authorizeHttpRequests(request ->
                 request
                 // Public endpoints (no authentication required)
-                        .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/refresh").permitAll()
                 // Admins Endpoints
                         .requestMatchers("/admin/**").hasRole(UserRole.ADMIN.name()) // Only users with ADMIN role can access /admin/**
-                // All other endpoints (authentication required)
+                // All other endpoints (authentication token required)
                         .anyRequest().authenticated()
         )
-                .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class); // Add the custom AuthenticationFilter before the UsernamePasswordAuthenticationFilter which is a built-in filter in Spring Security that processes authentication requests
+                .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class) // Add the custom AuthenticationFilter before the UsernamePasswordAuthenticationFilter which is a built-in filter in Spring Security that processes authentication requests
+                .exceptionHandling(
+                    exceptionHandler ->
+                            exceptionHandler.authenticationEntryPoint(
+                                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
+                            ) // Tell Spring Security to return 401 `Unauthorized` for unauthenticated requests instead of returning 403 `Forbidden`
+                ); // Handle exceptions (e.g., return 401 for unauthorized requests)
 
 
         // Build and return the configured SecurityFilterChain (Configuration object to be used by Spring Security at runtime)
