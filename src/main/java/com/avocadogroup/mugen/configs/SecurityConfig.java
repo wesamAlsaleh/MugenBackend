@@ -2,7 +2,6 @@ package com.avocadogroup.mugen.configs;
 
 import com.avocadogroup.mugen.authentication.AuthenticationFilter;
 import com.avocadogroup.mugen.authentication.UserDetailsServiceImpl;
-import com.avocadogroup.mugen.authentication.services.JwtService;
 import com.avocadogroup.mugen.users.enums.UserRole;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -47,18 +46,24 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/refresh").permitAll()
-                // Admins Endpoints
+                // Role Based Endpoints (Requires specific role)
                         .requestMatchers("/admin/**").hasRole(UserRole.ADMIN.name()) // Only users with ADMIN role can access /admin/**
                 // All other endpoints (authentication token required)
                         .anyRequest().authenticated()
         )
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class) // Add the custom AuthenticationFilter before the UsernamePasswordAuthenticationFilter which is a built-in filter in Spring Security that processes authentication requests
                 .exceptionHandling(
-                    exceptionHandler ->
-                            exceptionHandler.authenticationEntryPoint(
-                                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
-                            ) // Tell Spring Security to return 401 `Unauthorized` for unauthenticated requests instead of returning 403 `Forbidden`
-                ); // Handle exceptions (e.g., return 401 for unauthorized requests)
+                    exceptionHandler ->{
+                        // Tell Spring Security to return 401 `Unauthorized` for unauthenticated requests instead of returning 403 `Forbidden`
+                        exceptionHandler.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+
+                        // Tell Spring Security to return 403 `Forbidden` for unauthorized requests (authenticated but not authorized, need specific role/permission)
+                        exceptionHandler.accessDeniedHandler(
+                                (request,
+                                 response,
+                                 accessDeniedException) ->
+                                response.setStatus(HttpStatus.FORBIDDEN.value()));
+                    }); // Handle exceptions (e.g., return 401 for unauthorized requests)
 
 
         // Build and return the configured SecurityFilterChain (Configuration object to be used by Spring Security at runtime)

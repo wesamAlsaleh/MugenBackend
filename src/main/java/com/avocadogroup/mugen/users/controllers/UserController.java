@@ -1,4 +1,4 @@
-package com.avocadogroup.mugen.users;
+package com.avocadogroup.mugen.users.controllers;
 
 import org.springframework.web.bind.annotation.RestController;
 

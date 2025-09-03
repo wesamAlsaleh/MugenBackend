@@ -70,7 +70,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         var authenticationTokenObject = new UsernamePasswordAuthenticationToken(
                 userId, // User id
                 null, // No credentials because we are using JWT token for authentication (not username and password)
-                List.of(new SimpleGrantedAuthority("ROLE_" + userRole)) // Set the user role
+                List.of(new SimpleGrantedAuthority("ROLE_" + userRole)) // Set the user role in the authentication token (Spring Security expects roles to be prefixed with "ROLE_")
         );
 
         // Set the request details in the authentication token object (IP address, session ID, etc.) `boilerplate code!`
