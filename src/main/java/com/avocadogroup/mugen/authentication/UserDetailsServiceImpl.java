@@ -1,6 +1,5 @@
 package com.avocadogroup.mugen.authentication;
 
-import com.avocadogroup.mugen.global.exceptions.ResourceNotFoundException;
 import com.avocadogroup.mugen.users.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.User;

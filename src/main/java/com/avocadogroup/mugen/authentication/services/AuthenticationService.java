@@ -1,10 +1,7 @@
 package com.avocadogroup.mugen.authentication.services;
 
 import com.avocadogroup.mugen.authentication.AuthenticationMapper;
-import com.avocadogroup.mugen.authentication.dtos.JwtTokenResponse;
-import com.avocadogroup.mugen.authentication.dtos.LoginRequest;
-import com.avocadogroup.mugen.authentication.dtos.RegisterRequest;
-import com.avocadogroup.mugen.authentication.dtos.RegisterResponse;
+import com.avocadogroup.mugen.authentication.dtos.*;
 import com.avocadogroup.mugen.global.exceptions.BadRequestException;
 import com.avocadogroup.mugen.global.exceptions.DuplicateResourceException;
 import com.avocadogroup.mugen.global.exceptions.ResourceNotFoundException;
@@ -29,6 +26,15 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final UserMapper userMapper;
     private final JwtService jwtService;
+
+    // Function to get the user id from the security context holder
+    private Long getSecurityContextPrincipal(){
+        // Get the Security Context Holder which holds the authentication information for the current request
+        var authenticationObject = SecurityContextHolder.getContext().getAuthentication();
+
+        // Extract and return the user ID from the authentication object principal (which we set in the AuthenticationFilter)
+        return (Long) authenticationObject.getPrincipal(); // Cast the principal to Long (user ID) because spring doesn't know the type of the principal
+    }
 
     // Function to handle user registration
     public RegisterResponse register(RegisterRequest request) {
@@ -93,11 +99,8 @@ public class AuthenticationService {
 
     // Function to get the currently authenticated user's details from the security context holder
     public UserDto me(){
-        // Get the Security Context Holder which holds the authentication information for the current request
-        var authenticationObject = SecurityContextHolder.getContext().getAuthentication();
-
-        // Extract the user ID from the authentication object principal (which we set in the AuthenticationFilter)
-        var userId = (Long) authenticationObject.getPrincipal(); // Cast the principal to Long (user ID) because spring doesn't know the type of the principal
+        // Get the user ID from the security context holder
+       var userId = getSecurityContextPrincipal();
 
         // Fetch the user from the database using the user ID
         var user = userRepository.findById(userId)
@@ -135,4 +138,24 @@ public class AuthenticationService {
         return new JwtTokenResponse(newAccessToken, newRefreshToken);
     }
 
+    // Function to handle password reset
+     public void changePassword(ChangePasswordRequest request) {
+        // Get the user id from the security context holder
+        var userId = getSecurityContextPrincipal();
+
+        // Get the user by their email
+        var user = userRepository.findById(userId)
+                .orElseThrow(()-> new ResourceNotFoundException("User not found")); // This should never throw since the user is authenticated
+
+        // Check if the current password provided matches the user's actual current password
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new BadRequestException("Current password is incorrect");
+        }
+
+        // Update the user's password with the new password (hashed)
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+
+        // Save the updated user to the database
+        userRepository.save(user);
+     }
 }

@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -46,5 +47,4 @@ public class User {
 
     @Column(name = "updated_at", insertable = false, updatable = false) // Automatically set by the database
     private LocalDateTime updatedAt;
-
 }

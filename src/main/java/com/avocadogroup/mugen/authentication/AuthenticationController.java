@@ -1,9 +1,6 @@
 package com.avocadogroup.mugen.authentication;
 
-import com.avocadogroup.mugen.authentication.dtos.JwtTokenResponse;
-import com.avocadogroup.mugen.authentication.dtos.LoginRequest;
-import com.avocadogroup.mugen.authentication.dtos.RefreshTokenRequest;
-import com.avocadogroup.mugen.authentication.dtos.RegisterRequest;
+import com.avocadogroup.mugen.authentication.dtos.*;
 import com.avocadogroup.mugen.authentication.services.AuthenticationService;
 import com.avocadogroup.mugen.global.dtos.ErrorDto;
 import jakarta.validation.Valid;
@@ -89,7 +86,25 @@ public class AuthenticationController {
         }
     }
 
-    // TODO: API Endpoint for password reset
+    // TODO: API Endpoint for changing the password
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(
+            @Valid @RequestBody ChangePasswordRequest request
+            ) {
+        try {
+
+        // Try to change the user's password
+        authenticationService.changePassword(request);
+
+        // Return a 200 OK response with no body
+        return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            // In case of any exception (e.g., invalid current password), return a 400 Bad Request response
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorDto(e.getMessage()));
+        }
+    }
+
+    // TODO: API Endpoint for requesting a password reset (send email with reset link)
     // TODO: API Endpoint for email verification (maybe)
-    // TODO: API Endpoint for logout
+    // TODO: API Endpoint for logout (revoke refresh token)
 }
