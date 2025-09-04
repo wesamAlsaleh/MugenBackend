@@ -44,7 +44,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             // If so, skip JWT validation and continue with the next filter in the chain
             filterChain.doFilter(request, response);
 
-            // Exit the current filter and the spring security will handle the request as unauthenticated and return 401 Unauthorized
+            // Exit the current filter and the spring security will handle the request
             return;
         }
 
@@ -56,7 +56,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             // If so, skip JWT validation and continue with the next filter in the chain
             filterChain.doFilter(request, response);
 
-            // Exit the current filter and the spring security will handle the request as unauthenticated and return 401 Unauthorized
+            // Exit the current filter and the spring security will handle the request
             return;
         }
 

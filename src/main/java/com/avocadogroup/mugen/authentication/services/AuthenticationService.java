@@ -1,10 +1,10 @@
 package com.avocadogroup.mugen.authentication.services;
 
 import com.avocadogroup.mugen.authentication.AuthenticationMapper;
-import com.avocadogroup.mugen.authentication.dtos.AuthDto;
 import com.avocadogroup.mugen.authentication.dtos.JwtTokenResponse;
 import com.avocadogroup.mugen.authentication.dtos.LoginRequest;
 import com.avocadogroup.mugen.authentication.dtos.RegisterRequest;
+import com.avocadogroup.mugen.authentication.dtos.RegisterResponse;
 import com.avocadogroup.mugen.global.exceptions.BadRequestException;
 import com.avocadogroup.mugen.global.exceptions.DuplicateResourceException;
 import com.avocadogroup.mugen.global.exceptions.ResourceNotFoundException;
@@ -31,7 +31,7 @@ public class AuthenticationService {
     private final JwtService jwtService;
 
     // Function to handle user registration
-    public AuthDto register(RegisterRequest request) {
+    public RegisterResponse register(RegisterRequest request) {
         // Check if a user with the given email already exists
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateResourceException("Email already exists");
@@ -50,8 +50,24 @@ public class AuthenticationService {
         // Save the new user to the database
         userRepository.save(user);
 
-        // Return the saved user as a AuthDto
-        return authenticationMapper.toDto(user);
+        // Automatically log in the user after successful registration
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        ); // This will pass the credentials to DaoAuthenticationProvider which will use UserDetailsService to load user from the db and PasswordEncoder to verify password, if it matches, the user is authenticated and stored in the SecurityContextHolder
+
+        // Generate an access token (JWT) for the newly registered user
+        var accessToken = jwtService.generateAccessToken(user);
+
+        // Generate a refresh token (JWT) for the newly registered user
+        var refreshToken = jwtService.generateRefreshToken(user);
+
+        // TODO: Save the refresh token in the database (if you want to implement refresh token revocation)
+
+        // Wrap the tokens in a JwtTokenResponse object {accessToken:"abc", refreshToken:"xyz"}
+        var jwtTokens = new JwtTokenResponse(accessToken, refreshToken);
+
+        // Return the RegisterResponse containing the tokens and user ID
+        return new RegisterResponse(jwtTokens, user.getId());
     }
 
     // Function to handle user login using DaoAuthenticationProvider (Spring Security)
@@ -69,7 +85,7 @@ public class AuthenticationService {
         // Generate a refresh token (JWT) for the authenticated user
          var refreshToken = jwtService.generateRefreshToken(user);
 
-        // TODO: Save the refresh token in the database or cache (if you want to implement refresh token revocation)
+        // TODO: Save the refresh token in the database (if you want to implement refresh token revocation)
 
         // Wrap and return the token in a JwtTokenResponse object {accessToken:"abc"}
          return new JwtTokenResponse(accessToken, refreshToken);
@@ -95,6 +111,8 @@ public class AuthenticationService {
     public JwtTokenResponse refresh(String refreshToken){
         // Check if the refresh token is expired
         if(jwtService.isTokenExpired(refreshToken)){
+            // TODO: Revoke the refresh token in the database (if you want to implement refresh token revocation)
+
             throw new BadRequestException("Your session has expired, please log in again");
         }
 
@@ -111,7 +129,7 @@ public class AuthenticationService {
         // Refresh token rotation: Generate a new refresh token (JWT) for the user
         var newRefreshToken = jwtService.generateRefreshToken(user);
 
-        // TODO: Save the refresh token in the database or cache (if you want to implement refresh token revocation)
+        // TODO: Save the refresh token in the database (if you want to implement refresh token revocation)
 
         // Wrap and return the new tokens in a JwtTokenResponse object {accessToken:"abc", refreshToken:"xyz"}
         return new JwtTokenResponse(newAccessToken, newRefreshToken);

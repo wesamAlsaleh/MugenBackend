@@ -27,13 +27,13 @@ public class AuthenticationController {
     ) {
         try {
             // Try to register the user and return the AuthDto
-            var authDto = authenticationService.register(request);
+            var response = authenticationService.register(request);
 
             // Create the URI for the newly created user resource
-            var uri = uriBuilder.path("/users/{id}").buildAndExpand(authDto.getId()).toUri();
+            var uri = uriBuilder.path("/users/{id}").buildAndExpand(response.getUserId()).toUri();
 
             // Return a 201 response with the AuthDto in the body
-            return ResponseEntity.created(uri).body(authDto);
+            return ResponseEntity.created(uri).body(response.getJwtTokens());
         } catch (Exception e) {
             // In case of any exception, return a 400 Bad Request response
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
