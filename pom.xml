@@ -140,14 +140,12 @@
             <version>4.0.0</version>
         </dependency>
 
-        <!-- #14 as dep "spring-boot-starter-mail"-->
+        <!-- #14 manual installation as dep "spring-boot-starter-mail"-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
             <version>3.1.5</version>
         </dependency>
-
-
 
     </dependencies>
 

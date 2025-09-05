@@ -1,6 +1,19 @@
 spring:
   application:
     name: Mugen
+#    mailersend:
+#      api-key: ${MAILERSEND_API_KEY}
+  mail:
+    host: ${SMTP_HOST}
+    port: ${SMTP_PORT}
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   datasource:
     url: jdbc:mysql://localhost:3306/mugen?createDatabaseIfNotExist=true
     username: root

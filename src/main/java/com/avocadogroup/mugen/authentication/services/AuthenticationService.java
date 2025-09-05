@@ -2,6 +2,8 @@ package com.avocadogroup.mugen.authentication.services;
 
 import com.avocadogroup.mugen.authentication.AuthenticationMapper;
 import com.avocadogroup.mugen.authentication.dtos.*;
+import com.avocadogroup.mugen.email.EmailService;
+import com.avocadogroup.mugen.email.dtos.SimpleEmailRequest;
 import com.avocadogroup.mugen.global.exceptions.BadRequestException;
 import com.avocadogroup.mugen.global.exceptions.DuplicateResourceException;
 import com.avocadogroup.mugen.global.exceptions.ResourceNotFoundException;
@@ -26,6 +28,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final UserMapper userMapper;
     private final JwtService jwtService;
+    private final EmailService emailService;
 
     // Function to get the user id from the security context holder
     private Long getSecurityContextPrincipal(){
