@@ -7,6 +7,8 @@ import com.avocadogroup.mugen.email.dtos.SimpleEmailRequest;
 import com.avocadogroup.mugen.global.exceptions.BadRequestException;
 import com.avocadogroup.mugen.global.exceptions.DuplicateResourceException;
 import com.avocadogroup.mugen.global.exceptions.ResourceNotFoundException;
+import com.avocadogroup.mugen.otps.PasswordResetOtp;
+import com.avocadogroup.mugen.otps.PasswordResetOtpRepository;
 import com.avocadogroup.mugen.users.UserMapper;
 import com.avocadogroup.mugen.users.UserRepository;
 import com.avocadogroup.mugen.users.dtos.UserDto;
@@ -19,6 +21,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
+
 @Service
 @AllArgsConstructor
 public class AuthenticationService {
@@ -29,6 +37,7 @@ public class AuthenticationService {
     private final UserMapper userMapper;
     private final JwtService jwtService;
     private final EmailService emailService;
+    private final PasswordResetOtpRepository passwordResetOtpRepository;
 
     // Function to get the user id from the security context holder
     private Long getSecurityContextPrincipal(){
@@ -161,4 +170,88 @@ public class AuthenticationService {
         // Save the updated user to the database
         userRepository.save(user);
      }
+
+     // Function to send an email with a password reset OTP
+     public void requestPasswordResetOtp(String email) {
+        // Check if a user with the given email exists
+        var user = userRepository.findByEmail(email)
+                .orElseThrow(()-> new ResourceNotFoundException("User not found"));
+
+        // Get the latest OTP for the user
+        var latestOtp = passwordResetOtpRepository.findLatestByUserId(user.getId())
+                .orElse(null);
+
+        // If there is an existing OTP, check if it is still valid
+        if (latestOtp != null) {
+          // Check if the OTP is not expired and not used
+          if (!latestOtp.isExpired() && !latestOtp.isUsed()) {
+              throw new BadRequestException("An OTP has already been sent to your email. Please check your inbox.");
+          }
+        }
+
+        // Generate a new OTP code (6-digit random number as a string)
+        var otpCode = String.format("%06d", (int)(Math.random() * 1000000)); // Generate a random 6-digit OTP code as a string
+
+        // Create a new PasswordResetOtp entity and set its properties
+        var passwordResetOtp = new PasswordResetOtp();
+
+        passwordResetOtp.setUser(user);
+        passwordResetOtp.setOtpCode(otpCode);
+
+         // Set expiry as Instant (DB current time + 15 minutes)
+         Instant expiryInstant = Instant.now().plusSeconds(15 * 60); // OTP valid for 15 minutes (15 min each 60 sec)
+         passwordResetOtp.setExpiry(expiryInstant);
+
+        // Send the OTP to the user's email
+         emailService.sendEmail(
+                 new SimpleEmailRequest(
+                         user.getEmail(),
+                         "Password Reset Code - Mugen",
+                         "Your password reset code is: " + otpCode + "\nThis code will expired in 15 minutes."
+                 )
+         );
+
+        // Save the new OTP to the database
+        passwordResetOtpRepository.save(passwordResetOtp);
+     }
+
+     // Function to verify the password reset OTP
+    public void verifyPasswordResetOtp(VerifyPasswordResetOtpRequest request) {
+        // Check if a user with the given email exists
+        var user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(()-> new ResourceNotFoundException("User not found"));
+
+        // Get the latest OTP for the user
+        var latestOtp = passwordResetOtpRepository.findLatestByUserId(user.getId())
+                .orElseThrow(()-> new BadRequestException("Invalid OTP")); // If no OTP found, throw invalid OTP error
+
+        // Check if the provided OTP matches the latest OTP
+        if (!latestOtp.getOtpCode().equals(request.getOtp())) {
+            throw new BadRequestException("Invalid or expired OTP");
+        }
+
+        // Check if the OTP is expired or already used
+        if (latestOtp.isExpired() || latestOtp.isUsed()) {
+            throw new BadRequestException("Your reset code has expired, please request a new one");
+        }
+
+        // Verify successful, mark the OTP as used
+        latestOtp.setUsed(true);
+
+        // Save the updated OTP to the database
+        passwordResetOtpRepository.save(latestOtp);
+    }
+
+    // Function to reset the password after OTP verification
+    public void resetPassword(ResetPasswordRequest request) {
+        // Get the user associated with the OTP
+         var user = passwordResetOtpRepository.findUserByOtpCode(request.getOtp())
+                 .orElseThrow(()-> new BadRequestException("User not found")); // If no OTP found, throw invalid OTP error
+
+        // Change the user's password to the new password (hashed)
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+
+        // Save the updated user to the database
+        userRepository.save(user);
+    }
 }

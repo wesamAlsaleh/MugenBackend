@@ -103,7 +103,56 @@ public class AuthenticationController {
         }
     }
 
-    // TODO: API Endpoint for requesting a password reset (send email with reset link)
-    // TODO: API Endpoint for email verification (maybe)
+    // API Endpoint for forgot password (send OTP to email)
+    @PostMapping("/request-forgot-password-otp")
+    public ResponseEntity<?> requestForgotPasswordOtp(
+            @Valid @RequestBody ForgotPasswordOtpRequest request
+    ) {
+        try {
+            // Try to send the OTP to the user's email
+            authenticationService.requestPasswordResetOtp(request.getEmail());
+
+            // Return a 200 OK response with no body
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            // In case of any exception return a 400 Bad Request response
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorDto(e.getMessage()));
+        }
+    }
+
+    // API endpoint for verifying password reset OTP
+    @PostMapping("/verify-password-reset-otp")
+    public ResponseEntity<?> verifyPasswordResetOtp(
+            @Valid @RequestBody VerifyPasswordResetOtpRequest request
+    ) {
+        try {
+            // Try to verify the OTP
+            authenticationService.verifyPasswordResetOtp(request);
+
+            // Return a 200 OK response with no body
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            // In case of any exception return a 400 Bad Request response
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorDto(e.getMessage()));
+        }
+    }
+
+    // API endpoint for resetting password using OTP
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(
+            @Valid @RequestBody ResetPasswordRequest request
+    ) {
+        try {
+            // Try to change the user's password after OTP verification
+            authenticationService.resetPassword(request);
+
+            // Return a 200 OK response with no body
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            // In case of any exception return a 400 Bad Request response
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorDto(e.getMessage()));
+        }
+    }
+
     // TODO: API Endpoint for logout (revoke refresh token)
 }
