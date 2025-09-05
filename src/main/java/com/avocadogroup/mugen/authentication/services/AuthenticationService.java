@@ -93,7 +93,7 @@ public class AuthenticationService {
 
         // TODO: Save the refresh token in the database (if you want to implement refresh token revocation)
 
-        // Wrap and return the token in a JwtTokenResponse object {accessToken:"abc"}
+        // Wrap and return the token in a JwtTokenResponse object {accessToken:"abc", refreshToken:"xyz"}
          return new JwtTokenResponse(accessToken, refreshToken);
     }
 

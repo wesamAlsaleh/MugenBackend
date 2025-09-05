@@ -69,7 +69,7 @@ public class AuthenticationController {
         }
     }
 
-    // TODO: API Endpoint for token refresh (mobile clients)
+    // API Endpoint for token refresh (mobile clients) {web clients should use silent refresh with secure cookies 'HttpServletResponse'}
     @PostMapping("/refresh")
     public ResponseEntity<?> refresh(
             @Valid @RequestBody RefreshTokenRequest request
@@ -86,20 +86,19 @@ public class AuthenticationController {
         }
     }
 
-    // TODO: API Endpoint for changing the password
+    // API Endpoint for changing the password
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(
             @Valid @RequestBody ChangePasswordRequest request
             ) {
         try {
-
         // Try to change the user's password
         authenticationService.changePassword(request);
 
         // Return a 200 OK response with no body
         return ResponseEntity.ok().build();
         } catch (Exception e) {
-            // In case of any exception (e.g., invalid current password), return a 400 Bad Request response
+            // In case of any exception return a 400 Bad Request response
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorDto(e.getMessage()));
         }
     }
