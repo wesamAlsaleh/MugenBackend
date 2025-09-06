@@ -13,10 +13,6 @@ public interface PasswordResetOtpRepository extends JpaRepository<PasswordResetO
     @Query("SELECT o FROM PasswordResetOtp o WHERE o.user.id = :userId ORDER BY o.createdAt DESC")
     Optional<PasswordResetOtp> findLatestByUserId(@Param("userId") Long userId);
 
-    // Custom query to find the user according to the last otp code
-    @Query("SELECT o.user FROM PasswordResetOtp o WHERE o.otpCode = :otpCode ORDER BY o.createdAt DESC")
-    Optional<User> findUserByOtpCode(@Param("otpCode") String otpCode);
-
     // Custom query to find the latest OTP for a user and fetch the user eagerly
     @Query("SELECT o FROM PasswordResetOtp o WHERE o.user.id = :userId ORDER BY o.createdAt DESC") // Get the latest OTP for a user
     @EntityGraph(attributePaths = "user") // Eagerly load the user relationship
@@ -24,5 +20,4 @@ public interface PasswordResetOtpRepository extends JpaRepository<PasswordResetO
 
     // Custom query to delete all OTPs for a user
     void deleteAllByUser(User user);
-
 }
