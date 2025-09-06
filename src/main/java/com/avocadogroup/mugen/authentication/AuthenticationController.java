@@ -110,10 +110,10 @@ public class AuthenticationController {
     ) {
         try {
             // Try to send the OTP to the user's email
-            authenticationService.requestPasswordResetOtp(request.getEmail());
+            var resetToken = authenticationService.requestPasswordResetOtp(request.getEmail());
 
             // Return a 200 OK response with no body
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok().body(resetToken);
         } catch (Exception e) {
             // In case of any exception return a 400 Bad Request response
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorDto(e.getMessage()));

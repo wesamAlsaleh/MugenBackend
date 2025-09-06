@@ -1,6 +1,7 @@
 package com.avocadogroup.mugen.otps;
 
 import com.avocadogroup.mugen.users.User;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,5 +16,13 @@ public interface PasswordResetOtpRepository extends JpaRepository<PasswordResetO
     // Custom query to find the user according to the last otp code
     @Query("SELECT o.user FROM PasswordResetOtp o WHERE o.otpCode = :otpCode ORDER BY o.createdAt DESC")
     Optional<User> findUserByOtpCode(@Param("otpCode") String otpCode);
+
+    // Custom query to find the latest OTP for a user and fetch the user eagerly
+    @Query("SELECT o FROM PasswordResetOtp o WHERE o.user.id = :userId ORDER BY o.createdAt DESC") // Get the latest OTP for a user
+    @EntityGraph(attributePaths = "user") // Eagerly load the user relationship
+    Optional<PasswordResetOtp> findLatestOtpByUserIdWithUser(@Param("userId") Long userId);
+
+    // Custom query to delete all OTPs for a user
+    void deleteAllByUser(User user);
 
 }

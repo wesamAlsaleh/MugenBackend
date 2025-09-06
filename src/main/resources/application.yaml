@@ -24,3 +24,4 @@ spring:
     secret-key: ${JWT_SECRET}
     access-token-expiration-time: 604800 #  7 days in seconds TODO: change to 900 `15 mins in seconds` for production
     refresh-token-expiration-time: 604800 # 604800 is 7 days in seconds
+    reset-password-token-expiration-time: 900 # 15 mins in seconds

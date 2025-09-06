@@ -14,6 +14,7 @@ import com.avocadogroup.mugen.users.UserRepository;
 import com.avocadogroup.mugen.users.dtos.UserDto;
 import com.avocadogroup.mugen.users.enums.UserPreferredLanguage;
 import com.avocadogroup.mugen.users.enums.UserRole;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,10 +23,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Date;
 
 @Service
 @AllArgsConstructor
@@ -172,7 +169,7 @@ public class AuthenticationService {
      }
 
      // Function to send an email with a password reset OTP
-     public void requestPasswordResetOtp(String email) {
+     public ForgotPasswordOtpResponse requestPasswordResetOtp(String email) {
         // Check if a user with the given email exists
         var user = userRepository.findByEmail(email)
                 .orElseThrow(()-> new ResourceNotFoundException("User not found"));
@@ -181,10 +178,10 @@ public class AuthenticationService {
         var latestOtp = passwordResetOtpRepository.findLatestByUserId(user.getId())
                 .orElse(null);
 
-        // If there is an existing OTP, check if it is still valid
+        // If there is an existing OTP
         if (latestOtp != null) {
           // Check if the OTP is not expired and not used
-          if (!latestOtp.isExpired() && !latestOtp.isUsed()) {
+          if (!latestOtp.isExpired() || latestOtp.isUsed()) {
               throw new BadRequestException("An OTP has already been sent to your email. Please check your inbox.");
           }
         }
@@ -198,7 +195,7 @@ public class AuthenticationService {
         passwordResetOtp.setUser(user);
         passwordResetOtp.setOtpCode(otpCode);
 
-         // Set expiry as Instant (DB current time + 15 minutes)
+         // Set expiry as Instant (Current time + 15 minutes)
          Instant expiryInstant = Instant.now().plusSeconds(15 * 60); // OTP valid for 15 minutes (15 min each 60 sec)
          passwordResetOtp.setExpiry(expiryInstant);
 
@@ -213,45 +210,71 @@ public class AuthenticationService {
 
         // Save the new OTP to the database
         passwordResetOtpRepository.save(passwordResetOtp);
+
+        // Generate a reset token (JWT) for the user
+         var resetToken = jwtService.generateResetPasswordToken(user);
+
+        // Return the reset token in the response
+         return new ForgotPasswordOtpResponse(resetToken);
      }
 
      // Function to verify the password reset OTP
+    @Transactional // Mark the method as transactional to ensure atomicity of operations (either all checks + cleanup happen, or none)
     public void verifyPasswordResetOtp(VerifyPasswordResetOtpRequest request) {
-        // Check if a user with the given email exists
-        var user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(()-> new ResourceNotFoundException("User not found"));
+        // If the reset token is expired, throw an error
+        if (jwtService.isTokenExpired(request.getResetToken())) {
+            throw new BadRequestException("Your reset token has expired, please request a new one");
+        }
 
-        // Get the latest OTP for the user
-        var latestOtp = passwordResetOtpRepository.findLatestByUserId(user.getId())
-                .orElseThrow(()-> new BadRequestException("Invalid OTP")); // If no OTP found, throw invalid OTP error
+        // Get the user ID from the reset token (JWT)
+        var userId = jwtService.getUserIdFromToken(request.getResetToken());
 
-        // Check if the provided OTP matches the latest OTP
-        if (!latestOtp.getOtpCode().equals(request.getOtp())) {
+        // Get the user OTP from the database using the user ID and fetch the user eagerly
+        var otpObj = passwordResetOtpRepository.findLatestOtpByUserIdWithUser(userId)
+                .orElseThrow(()-> new BadRequestException("Invalid or expired OTP")); // If no OTP found, throw invalid OTP error
+
+        // Check if the OTP belongs to the user from the token
+        if (!otpObj.getUser().getId().equals(userId)) {
             throw new BadRequestException("Invalid or expired OTP");
         }
 
-        // Check if the OTP is expired or already used
-        if (latestOtp.isExpired() || latestOtp.isUsed()) {
+        // Check if the provided OTP matches the latest OTP
+        if (!otpObj.getOtpCode().equals(request.getOtp())) {
+            throw new BadRequestException("Invalid or expired OTP");
+        }
+
+        // Check if the OTP is expired or not used (if it's not used and not expired, it's still valid so don't generate an OTP again)
+        if (otpObj.isExpired() || otpObj.isUsed()) {
             throw new BadRequestException("Your reset code has expired, please request a new one");
         }
 
         // Verify successful, mark the OTP as used
-        latestOtp.setUsed(true);
+        otpObj.markAsUsed();
 
-        // Save the updated OTP to the database
-        passwordResetOtpRepository.save(latestOtp);
+        // Delete all OTPs for the user (for security)
+        passwordResetOtpRepository.deleteAllByUser(otpObj.getUser());
     }
 
     // Function to reset the password after OTP verification
     public void resetPassword(ResetPasswordRequest request) {
-        // Get the user associated with the OTP
-         var user = passwordResetOtpRepository.findUserByOtpCode(request.getOtp())
-                 .orElseThrow(()-> new BadRequestException("User not found")); // If no OTP found, throw invalid OTP error
+        // If the reset token is expired, throw an error
+        if (jwtService.isTokenExpired(request.getResetToken())) {
+            throw new BadRequestException("Your reset token has expired, please request a new one");
+        }
+
+        // Get the user ID from the reset token (JWT)
+        var userId = jwtService.getUserIdFromToken(request.getResetToken());
+
+        // Get the user from the database using the user ID
+         var user = userRepository.findById(userId)
+                 .orElseThrow(()-> new ResourceNotFoundException("User not found"));
 
         // Change the user's password to the new password (hashed)
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
 
         // Save the updated user to the database
         userRepository.save(user);
+
+        // TODO: Destroy all existing refresh tokens for the user (if you want to implement refresh token revocation)
     }
 }

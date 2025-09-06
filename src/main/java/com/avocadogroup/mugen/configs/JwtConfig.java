@@ -15,6 +15,7 @@ public class JwtConfig {
     private String secretKey; // Secret key for signing the JWT
     private long accessTokenExpirationTime; // Access token expiration time in seconds (900 seconds = 15 minutes)
     private long refreshTokenExpirationTime; // Refresh token expiration time in seconds (604800 seconds = 7 days)
+    private long resetPasswordTokenExpirationTime; // Reset password token expiration time in seconds (3600 seconds = 1 hour)
 
     // Function to get the SecretKey object from the secret key string
     public SecretKey getSecretKey() {

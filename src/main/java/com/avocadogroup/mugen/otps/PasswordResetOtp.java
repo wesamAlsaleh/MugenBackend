@@ -35,7 +35,7 @@ public class PasswordResetOtp {
     @Column(name = "created_at", insertable = false, updatable = false) // createdAt is set by the database
     private Instant createdAt;
 
-    // Method to check if the OTP is expired
+    // Method to check if the OTP is expired (after 15 minutes)
     public boolean isExpired() {
         // Return true if the current time is after the expiry time
         return Instant.now().isAfter(this.expiry);

@@ -6,7 +6,6 @@ import com.avocadogroup.mugen.users.enums.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -56,6 +55,14 @@ public class JwtService {
         return buildJwtToken(user, tokenExpiration);
     }
 
+    // Function to generate reset password tokens
+    public String generateResetPasswordToken(User user) {
+        final long tokenExpiration = jwtConfig.getResetPasswordTokenExpirationTime(); // Reset password token expiration time in seconds (1 hour)
+
+        // Build Json Web token using the jwt builder
+        return buildJwtToken(user, tokenExpiration);
+    }
+
     // Function to check if the token is expired
     public boolean isTokenExpired(String jwtToken) {
         try {
@@ -88,4 +95,12 @@ public class JwtService {
         return UserRole.valueOf(claims.get("role", String.class));
     }
 
+    // Function to get the user email from the token claims
+    public String getUserEmailFromToken(String jwtToken) {
+        // Parse the token and extract the claims (payload)
+        var claims = getTokenClaims(jwtToken);
+
+        // Return the user email from the token claims
+        return claims.get("email", String.class);
+    }
 }
