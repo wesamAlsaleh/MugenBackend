@@ -5,6 +5,8 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 public class FavoriteAnimeService {
@@ -34,5 +36,14 @@ public class FavoriteAnimeService {
 
         // Find the favorite anime entry by user and animeId and delete it
         favoriteRepository.deleteFavoriteAnimeByUserId(user.getId(), animeId);
+    }
+
+    // Function to get the ids of all favorite animes for the current user
+    public List<Long> getFavoriteAnimes() {
+        // Get the current authenticated user
+        var user = authenticationService.getCurrentUser();
+
+        // Retrieve all favorite animes for the user and map them to an array of animeIds
+        return favoriteRepository.getFavoriteAnimesByUserId((user.getId()));
     }
 }

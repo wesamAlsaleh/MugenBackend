@@ -1,5 +1,7 @@
 package com.avocadogroup.mugen.watchList.favoriteAnimes;
 
+import com.avocadogroup.mugen.anilist.dtos.FavoriteAnimesRequest;
+import com.avocadogroup.mugen.anilist.services.AnilistService;
 import com.avocadogroup.mugen.global.dtos.ErrorDto;
 import com.avocadogroup.mugen.watchList.favoriteAnimes.dtos.AddFavoriteAnimeRequest;
 import jakarta.validation.Valid;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 public class FavoriteAnimeController {
     private final FavoriteAnimeService favoriteService;
+    private final AnilistService anilistService;
 
     // API endpoint to add an anime to favorites using animeId as a request parameter
     @PostMapping("/add")
@@ -40,6 +43,24 @@ public class FavoriteAnimeController {
 
             // Return a success response
             return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // API endpoint to get the ids of all favorite animes for the current user
+    @GetMapping("/list")
+    public ResponseEntity<?> getFavoriteAnimes(@RequestParam(required = false, defaultValue = "6") int perPage) {
+        // Try to get the favorite animes using the service
+        try {
+            // Call the favorite service method to get the favorite animes
+            var animesIds = favoriteService.getFavoriteAnimes();
+
+            // Call the anilist service method to get the anime details based on the ids
+            var data = anilistService.fetchAnimesByIds(new FavoriteAnimesRequest(perPage, animesIds));
+
+            // Return the list of favorite anime IDs
+            return ResponseEntity.ok().body(data);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

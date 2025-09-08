@@ -1,6 +1,7 @@
 package com.avocadogroup.mugen.anilist.services;
 
 import com.avocadogroup.mugen.configs.AnilistConfig;
+import com.avocadogroup.mugen.global.exceptions.BadRequestException;
 import com.avocadogroup.mugen.global.exceptions.InternalServerErrorException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -86,7 +87,7 @@ public class GraphQlService {
             // Convert the "media" node to a list of objects and return it (using TypeReference for generic type, now its empty which means List<Object>)
             return objectMapper.convertValue(mediaNode, new TypeReference<>() {});
         } catch (Exception e) {
-            throw new InternalServerErrorException(e.getMessage()); // TODO: Log the error message and display to the client "Error fetching data from Anilist"
+            throw new BadRequestException(e.getMessage()); // TODO: Log the error message and display to the client "Error fetching data from Anilist"
         }
     }
 }

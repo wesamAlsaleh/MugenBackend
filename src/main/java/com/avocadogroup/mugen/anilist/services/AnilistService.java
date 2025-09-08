@@ -2,8 +2,11 @@ package com.avocadogroup.mugen.anilist.services;
 
 import com.avocadogroup.mugen.anilist.dtos.*;
 import com.avocadogroup.mugen.anilist.enums.MediaSortBy;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.HashMap;
 import java.util.List;
@@ -151,6 +154,53 @@ public class AnilistService {
 
         // Return the list of animes wrapped in a SearchAnimesResponse object
         return new SearchAnimesResponse(mediaList);
+    }
+
+    // Function to fetch specific animes by their IDs
+    public FavoriteAnimesResponse fetchAnimesByIds(@Valid @RequestBody FavoriteAnimesRequest request) {
+        // Prepare the GraphQL query
+        String query = """
+                query Query($idIn: [Int], $perPage: Int) {
+                    Page(perPage: $perPage) {
+                      media(id_in: $idIn) {
+                        id
+                        title {
+                          english
+                          native
+                          romaji
+                          userPreferred
+                        }
+                        coverImage {
+                          color
+                          extraLarge
+                          large
+                          medium
+                        }
+                        averageScore
+                        meanScore
+                        type
+                        status
+                        episodes
+                        genres
+                        nextAiringEpisode {
+                          airingAt
+                          episode
+                        }
+                      }
+                    }
+                  }
+                """;
+
+        // Prepare the variables for the query in a map {idIn: [185407, 178788, 181444, 182309, 185660, 154768, 175914, 171046]}
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("perPage", request.getPerPage());
+        variables.put("idIn", request.getAnimeIds());
+
+        // Try to make the POST request to AniList GraphQL endpoint with the query and variables
+        var mediaList = (List<AnimeDto>) graphQlService.postGraphQLRequestToAnilist(query, variables);
+
+        // Return the list of animes
+        return new FavoriteAnimesResponse(mediaList);
     }
 }
 
