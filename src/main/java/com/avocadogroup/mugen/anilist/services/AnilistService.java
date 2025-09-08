@@ -26,12 +26,10 @@ import java.util.Map;
 public class AnilistService {
     private final AnilistConfig anilistConfig;
     private final SeasonService seasonService;
+    private final GraphQlService graphQlService;
 
     // Function to fetch this season's anime list using graphql
     public ThisSeasonAnimesResponse fetchThisSeasonAnimes(ThisSeasonAnimesRequest paginationRequest)  {
-        // Create a RestTemplate instance to make HTTP requests
-        RestTemplate restTemplate = new RestTemplate();
-
         // Prepare the GraphQL query
         String query = """
             query Query($page: Int, $perPage: Int, $season: MediaSeason, $seasonYear: Int) {
@@ -72,56 +70,15 @@ public class AnilistService {
         variables.put("season", seasonService.getCurrentSeason());
         variables.put("seasonYear", seasonService.getCurrentYear());
 
-        // Build request payload in a map {query: "...", variables: {...}}
-        Map<String, Object> requestPayload = new HashMap<>();
-        requestPayload.put("query", query);
-        requestPayload.put("variables", variables);
+        // Try to make the POST request to AniList GraphQL endpoint with the query and variables
+        List<AnimeDto> mediaList = (List<AnimeDto>) graphQlService.postGraphQLRequestToAnilist(query, variables); // Cast to List<AnimeDto> to avoid type mismatch
 
-        // Set up HTTP headers for the request
-        HttpHeaders headers = new HttpHeaders();
-
-        // Set the content type to application/json
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        // Create the HTTP entity with headers and payload as a JSON string {requestPayload: {...}, headers: {...}}
-        HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestPayload, headers);
-
-        // Try to make the POST request to the Anilist GraphQL API
-        try {
-            ResponseEntity<String> response = restTemplate.exchange(
-                anilistConfig.getApiUrl(), // Url
-                org.springframework.http.HttpMethod.POST, // HTTP method
-                request, // Request entity
-                String.class // Response type
-            );
-
-            // Get the response body
-            String responseBody = response.getBody();
-
-            // Parse the response body using Jackson ObjectMapper to extract data
-            ObjectMapper objectMapper = new ObjectMapper();
-
-            // Read the response body as a JsonNode tree structure
-            JsonNode root = objectMapper.readTree(responseBody);
-
-            // Jump to the "media" node to get the list of animes (Array of media objects)
-            JsonNode mediaNode = root.path("data").path("Page").path("media");
-
-            // Convert the "media" node to a list of AnimeDto objects (using TypeReference for generic type, now its empty which means List<AnimeDto>)
-            List<AnimeDto> mediaList = objectMapper.convertValue(mediaNode, new TypeReference<>() {});
-
-            // Return the list of animes
-            return new ThisSeasonAnimesResponse(mediaList);
-        } catch (Exception e) {
-            throw new InternalServerErrorException(e.getMessage());
-        }
+        // Return the list of animes wrapped in a ThisSeasonAnimesResponse object
+        return new ThisSeasonAnimesResponse(mediaList);
     }
 
     // Function to fetch top this season's anime list based on average score
     public ThisSeasonTopAnimesResponse fetchThisSeasonTopAnimes() {
-        // Create a RestTemplate instance to make HTTP requests
-        RestTemplate restTemplate = new RestTemplate();
-
         // Prepare the GraphQL query
         String query = """
             query Query($perPage: Int, $season: MediaSeason, $seasonYear: Int, $sort: [MediaSort]) {
@@ -153,49 +110,11 @@ public class AnilistService {
         variables.put("seasonYear", seasonService.getCurrentYear());
         variables.put("sort", AnimeSortBy.SCORE_DESC);
 
-        // Build request payload in a map {query: "...", variables: {...}}
-        Map<String, Object> requestPayload = new HashMap<>();
-        requestPayload.put("query", query);
-        requestPayload.put("variables", variables);
+        // Try to make the POST request to AniList GraphQL endpoint with the query and variables
+        List<TopAnimeDto> mediaList = (List<TopAnimeDto>) graphQlService.postGraphQLRequestToAnilist(query, variables); // Cast to List<TopAnimeDto> to avoid type mismatch
 
-        // Set up HTTP headers for the request
-        HttpHeaders headers = new HttpHeaders();
-
-        // Set the content type to application/json
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        // Create the HTTP entity with headers and payload as a JSON string {requestPayload: {...}, headers: {...}}
-        HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestPayload, headers);
-
-        // Try to make the POST request to the Anilist GraphQL API
-        try {
-            ResponseEntity<String> response = restTemplate.exchange(
-                    anilistConfig.getApiUrl(), // Url
-                    org.springframework.http.HttpMethod.POST, // HTTP method
-                    request, // Request entity
-                    String.class // Response type
-            );
-
-            // Get the response body
-            String responseBody = response.getBody();
-
-            // Parse the response body using Jackson ObjectMapper to extract data
-            ObjectMapper objectMapper = new ObjectMapper();
-
-            // Read the response body as a JsonNode tree structure
-            JsonNode root = objectMapper.readTree(responseBody);
-
-            // Jump to the "media" node to get the list of animes (Array of media objects)
-            JsonNode mediaNode = root.path("data").path("Page").path("media");
-
-            // Convert the "media" node to a list of AnimeDto objects (using TypeReference for generic type, now its empty which means List<AnimeDto>)
-            var mediaList = objectMapper.convertValue(mediaNode, new TypeReference<>() {});
-
-            // Return the list of animes
-            return new ThisSeasonTopAnimesResponse((List<TopAnimeDto>) mediaList); // Cast to List<TopAnimeDto> to avoid type mismatch
-        } catch (Exception e) {
-            throw new InternalServerErrorException(e.getMessage());
-        }
+        // Return the list of animes
+        return new ThisSeasonTopAnimesResponse(mediaList);
     }
 }
 
