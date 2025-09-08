@@ -25,7 +25,7 @@ public class AnilistController {
     public ResponseEntity<?> getThisSeasonAnimes(@ModelAttribute ThisSeasonAnimesRequest request) {
         try {
         // Try to fetch this season animes from Anilist service (with pagination parameters)
-        var mediaList = anilistService.fetchThisSeasonAnime(request);
+        var mediaList = anilistService.fetchThisSeasonAnimes(request);
 
         // Return the fetched animes in the response body with HTTP status 200 OK
         return ResponseEntity.ok().body(mediaList);
@@ -33,5 +33,20 @@ public class AnilistController {
             throw new RuntimeException(e);
         }
     }
+
+    // API endpoint to get the current season animes based on the average score
+    @GetMapping("/top-this-season-animes")
+    public ResponseEntity<?> getTopThisSeasonAnimes() {
+        try {
+            // Try to fetch this season top animes from Anilist service based on average score
+            var mediaList = anilistService.fetchThisSeasonTopAnimes();
+
+            // Return the fetched animes in the response body with HTTP status 200 OK
+            return ResponseEntity.ok().body(mediaList);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
 }

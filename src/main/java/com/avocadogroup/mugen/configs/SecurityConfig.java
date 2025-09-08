@@ -50,6 +50,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,"auth/verify-password-reset-otp").permitAll()
                         .requestMatchers(HttpMethod.POST,"auth/reset-password").permitAll()
                         .requestMatchers(HttpMethod.GET, "anime/this-season").permitAll()
+                        .requestMatchers(HttpMethod.GET, "anime/top-this-season-animes").permitAll()
                 // Role Based Endpoints (Requires specific role)
                         .requestMatchers("/admin/**").hasRole(UserRole.ADMIN.name()) // Only users with ADMIN role can access /admin/**
                 // All other endpoints (authentication token required)

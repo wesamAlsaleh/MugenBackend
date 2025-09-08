@@ -1,6 +1,6 @@
 package com.avocadogroup.mugen.anilist.services;
 
-import com.avocadogroup.mugen.anilist.AnimeSeasons;
+import com.avocadogroup.mugen.anilist.enums.AnimeSeasons;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
