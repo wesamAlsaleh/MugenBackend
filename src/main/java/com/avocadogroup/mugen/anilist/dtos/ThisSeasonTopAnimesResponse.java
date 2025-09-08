@@ -8,5 +8,5 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class ThisSeasonTopAnimesResponse {
-    private List<TopAnimeDto> mediaList; // Array of TopAnimeDto objects
+    private List<TopAnimeDto> data; // Array of objects of type TopAnimeDto
 }

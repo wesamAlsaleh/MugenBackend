@@ -7,6 +7,6 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class ThisSeasonAnimesResponse {
-    private List<AnimeDto> data; // Array of objects of type AnimeDto
+public class SearchAnimesResponse {
+    private List<SearchResultAnimesDto> data;
 }

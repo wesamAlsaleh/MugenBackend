@@ -1,5 +1,6 @@
 package com.avocadogroup.mugen.anilist;
 
+import com.avocadogroup.mugen.anilist.dtos.SearchAnimesRequest;
 import com.avocadogroup.mugen.anilist.dtos.ThisSeasonAnimesRequest;
 import com.avocadogroup.mugen.anilist.services.AnilistService;
 import lombok.AllArgsConstructor;
@@ -48,5 +49,19 @@ public class AnilistController {
         }
     }
 
+
+    // API endpoint for searching animes by title with pagination as query parameters!
+    @GetMapping("/search-animes")
+    public ResponseEntity<?> searchAnimes(@ModelAttribute SearchAnimesRequest request) {
+        try {
+            // Try to fetch searched animes from Anilist service (based on title) with pagination parameters
+            var mediaList = anilistService.searchAnimes(request);
+
+            // Return the fetched animes in the response body with HTTP status 200 OK
+            return ResponseEntity.ok().body(mediaList);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }

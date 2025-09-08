@@ -1,7 +1,5 @@
 package com.avocadogroup.mugen.anilist.services;
 
-import com.avocadogroup.mugen.anilist.dtos.AnimeDto;
-import com.avocadogroup.mugen.anilist.dtos.ThisSeasonAnimesResponse;
 import com.avocadogroup.mugen.configs.AnilistConfig;
 import com.avocadogroup.mugen.global.exceptions.InternalServerErrorException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -58,13 +56,13 @@ public class GraphQlService {
         // Set the content type to application/json
         requestHeaders.setContentType(MediaType.APPLICATION_JSON);
 
-        // Create the request payload using the buildGraphQLPayload method
+        // Create the request body using the buildGraphQLPayload method
         Map<String, Object> requestBody = buildGraphQLPayload(query, variables);
 
-        // Create the HTTP entity with headers and payload as a JSON string {requestPayload: {...}, headers: {...}}
+        // Create the HTTP entity with headers and payload and return it as {"query": "...", "variables": {...}}
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, requestHeaders);
 
-        // Try to make the POST request to the specified GraphQL endpoint
+        // Try to make the POST request to the AniList GraphQL endpoint with the provided query and variables
         try {
             ResponseEntity<String> response = restTemplate.exchange(
                     anilistConfig.getApiUrl(), // Url
