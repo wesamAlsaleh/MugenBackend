@@ -1,0 +1,53 @@
+package com.avocadogroup.mugen.watchList.favoriteAnimes;
+
+import com.avocadogroup.mugen.global.dtos.ErrorDto;
+import com.avocadogroup.mugen.watchList.favoriteAnimes.dtos.AddFavoriteAnimeRequest;
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/favorites")
+@AllArgsConstructor
+public class FavoriteAnimeController {
+    private final FavoriteAnimeService favoriteService;
+
+    // API endpoint to add an anime to favorites using animeId as a request parameter
+    @PostMapping("/add")
+    public ResponseEntity<?> addFavoriteAnime(@Valid @ModelAttribute AddFavoriteAnimeRequest request) {
+        // Try to add the favorite anime using the service
+        try {
+            // Call the service method to add the favorite anime
+            favoriteService.addFavoriteAnime(request.getAnimeId());
+
+            // Return a success response
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // API endpoint to remove an anime from favorites using animeId as a request parameter
+    @DeleteMapping("/remove")
+    public ResponseEntity<?> removeFavoriteAnime(@Valid @ModelAttribute AddFavoriteAnimeRequest request) {
+        // Try to add the favorite anime using the service
+        try {
+            // Call the service method to remove the favorite anime
+            favoriteService.removeFavoriteAnime(request.getAnimeId());
+
+            // Return a success response
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // Method to handle duplicate favorite anime addition attempts (not in global exception handler to provide specific message)
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorDto> handleDuplicateFavoriteException() {
+        return ResponseEntity.badRequest().body(new ErrorDto("This anime is already in your favorites."));
+    }
+}

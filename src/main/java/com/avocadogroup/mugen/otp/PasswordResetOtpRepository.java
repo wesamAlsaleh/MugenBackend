@@ -1,4 +1,4 @@
-package com.avocadogroup.mugen.otps;
+package com.avocadogroup.mugen.otp;
 
 import com.avocadogroup.mugen.users.User;
 import org.springframework.data.jpa.repository.EntityGraph;

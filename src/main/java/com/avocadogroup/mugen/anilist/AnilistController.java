@@ -63,5 +63,4 @@ public class AnilistController {
             throw new RuntimeException(e);
         }
     }
-
 }

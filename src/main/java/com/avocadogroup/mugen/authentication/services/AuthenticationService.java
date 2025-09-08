@@ -7,8 +7,9 @@ import com.avocadogroup.mugen.email.dtos.SimpleEmailRequest;
 import com.avocadogroup.mugen.global.exceptions.BadRequestException;
 import com.avocadogroup.mugen.global.exceptions.DuplicateResourceException;
 import com.avocadogroup.mugen.global.exceptions.ResourceNotFoundException;
-import com.avocadogroup.mugen.otps.PasswordResetOtp;
-import com.avocadogroup.mugen.otps.PasswordResetOtpRepository;
+import com.avocadogroup.mugen.otp.PasswordResetOtp;
+import com.avocadogroup.mugen.otp.PasswordResetOtpRepository;
+import com.avocadogroup.mugen.users.User;
 import com.avocadogroup.mugen.users.UserMapper;
 import com.avocadogroup.mugen.users.UserRepository;
 import com.avocadogroup.mugen.users.dtos.UserDto;
@@ -106,14 +107,20 @@ public class AuthenticationService {
          return new JwtTokenResponse(accessToken, refreshToken);
     }
 
-    // Function to get the currently authenticated user's details from the security context holder
-    public UserDto me(){
+    // Function to get the current user from the security context
+    public User getCurrentUser(){
         // Get the user ID from the security context holder
-       var userId = getSecurityContextPrincipal();
+        var userId = getSecurityContextPrincipal();
 
         // Fetch the user from the database using the user ID
-        var user = userRepository.findById(userId)
+        return userRepository.findById(userId)
                 .orElseThrow(()-> new ResourceNotFoundException("User not found")); // This should never throw since the user is authenticated
+    }
+
+    // Function to get the currently authenticated user's details from the security context holder
+    public UserDto me(){
+        // Get the current user entity
+        var user = getCurrentUser();
 
         // Return the user as a UserDto
         return userMapper.toDto(user);
