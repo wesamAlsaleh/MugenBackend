@@ -338,11 +338,15 @@ public class AnilistService {
                             popularity
                             trending
                             studios {
-                                nodes {
+                                edges {
                                     id
-                                    name
-                                    siteUrl
-                                    isAnimationStudio
+                                    isMain
+                                    node {
+                                        id
+                                        name
+                                        siteUrl
+                                        isAnimationStudio
+                                    }
                                 }
                             }
                             characters {

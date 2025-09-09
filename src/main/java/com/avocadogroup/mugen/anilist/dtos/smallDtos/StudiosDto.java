@@ -6,5 +6,5 @@ import java.util.List;
 
 @Data
 public class StudiosDto {
-    private List<StudioDto> nodes;
+    private List<StudioDto> edges;
 }
