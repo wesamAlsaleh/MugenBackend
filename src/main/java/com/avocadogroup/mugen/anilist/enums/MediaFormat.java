@@ -1,0 +1,14 @@
+package com.avocadogroup.mugen.anilist.enums;
+
+public enum MediaFormat {
+    TV,
+    TV_SHORT,
+    MOVIE,
+    SPECIAL,
+    OVA,
+    ONA,
+    MUSIC,
+    MANGA,
+    NOVEL,
+    ONE_SHOT
+}

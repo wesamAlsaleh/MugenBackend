@@ -107,5 +107,19 @@ public class AnilistController {
         }
     }
 
+    // API endpoint to get the anime details by its ID
+    @GetMapping
+    public ResponseEntity<?> getAnimeDetailsById(@RequestParam(name = "id") Integer animeId) {
+        try {
+            // Try to fetch the anime details from Anilist service based on anime ID
+            var anime = anilistService.fetchAnimeDetailsById(animeId);
+
+            // Return the fetched genres in the response body with HTTP status 200 OK
+            return ResponseEntity.ok().body(anime);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
 

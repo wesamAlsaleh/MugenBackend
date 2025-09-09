@@ -284,6 +284,90 @@ public class AnilistService {
         return new GenresResponse(genres);
     }
 
+    // Function to fetch anime details by anime ID
+    public AnimeDetailsResponse fetchAnimeDetailsById(Integer animeId) {
+        // Prepare the GraphQL query
+        String query = """
+                query Query($mediaId: Int) {
+                  Page {
+                    media(id: $mediaId) {
+                    id
+                    idMal
+                    title {
+                      romaji
+                      english
+                      native
+                      userPreferred
+                    }
+                    type
+                    format
+                    status
+                    description
+                    startDate {
+                      day
+                      month
+                      year
+                    }
+                    endDate {
+                      day
+                      month
+                      year
+                    }
+                    season
+                    seasonYear
+                    episodes
+                    duration
+                    countryOfOrigin
+                    source
+                    hashtag
+                    trailer {
+                      id
+                      site
+                      thumbnail
+                    }
+                    coverImage {
+                      color
+                      extraLarge
+                      large
+                      medium
+                    }
+                    bannerImage
+                    genres
+                    averageScore
+                    meanScore
+                    popularity
+                    trending
+                    studios {
+                      nodes {
+                        id
+                        name
+                        siteUrl
+                        isAnimationStudio
+                      }
+                    }
+                    isAdult
+                    nextAiringEpisode {
+                      airingAt
+                      episode
+                      timeUntilAiring
+                    }
+                    siteUrl
+                    }
+                  }
+                }
+        """;
+
+        // Prepare the variables for the query in a map
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("mediaId", animeId);
+
+        // Try to make the POST request to AniList GraphQL endpoint with the query and variables
+        var anime = (List<AnimeDetailsDto>) graphQlService.postGraphQLRequestToAnilist(query, variables);
+
+        // Return the anime details wrapped in a AnimeDetailsResponse object
+        return new AnimeDetailsResponse(anime);
+    }
+
 }
 
 
