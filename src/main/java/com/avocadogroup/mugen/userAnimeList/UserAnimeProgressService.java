@@ -1,11 +1,17 @@
 package com.avocadogroup.mugen.userAnimeList;
 
+import com.avocadogroup.mugen.anilist.dtos.AnimeDto;
+import com.avocadogroup.mugen.anilist.dtos.AnimeListRequest;
+import com.avocadogroup.mugen.anilist.dtos.AnimeListResponse;
+import com.avocadogroup.mugen.anilist.services.AnilistService;
 import com.avocadogroup.mugen.authentication.services.AuthenticationService;
-import com.avocadogroup.mugen.global.exceptions.BadRequestException;
 import com.avocadogroup.mugen.userAnimeList.dtos.AddAnimeToListRequest;
+import com.avocadogroup.mugen.userAnimeList.dtos.UserListRequest;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -38,5 +44,14 @@ public class UserAnimeProgressService {
 
         // Save the user anime progress to the database
         userAnimeProgressRepository.save(userAnimeProgress);
+    }
+
+    // Function to get the user list based on status
+    public List<Long> getUserListIds(UserListRequest request) {
+        // Get the current authenticated user
+        var user = authenticationService.getCurrentUser();
+
+        // Retrieve the user's anime list based on the status and user ID
+        return userAnimeProgressRepository.getUserListIdsByStatus(user.getId(), request.getStatus().toString());
     }
 }

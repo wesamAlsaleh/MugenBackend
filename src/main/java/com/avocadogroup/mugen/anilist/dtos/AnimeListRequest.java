@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class FavoriteAnimesRequest {
+public class AnimeListRequest {
     private int perPage; // Default to 6 if not provided
     private List<Long> animeIds; // Array of anime IDs to fetch details for
 }

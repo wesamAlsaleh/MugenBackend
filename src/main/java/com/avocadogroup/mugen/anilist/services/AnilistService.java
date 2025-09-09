@@ -6,7 +6,6 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.HashMap;
 import java.util.List;
@@ -157,7 +156,7 @@ public class AnilistService {
     }
 
     // Function to fetch specific animes by their IDs
-    public FavoriteAnimesResponse fetchAnimesByIds(@Valid @RequestBody FavoriteAnimesRequest request) {
+    public AnimeListResponse fetchAnimesByIds(@Valid AnimeListRequest request) {
         // Prepare the GraphQL query
         String query = """
                 query Query($idIn: [Int], $perPage: Int) {
@@ -200,7 +199,7 @@ public class AnilistService {
         var mediaList = (List<AnimeDto>) graphQlService.postGraphQLRequestToAnilist(query, variables);
 
         // Return the list of animes
-        return new FavoriteAnimesResponse(mediaList);
+        return new AnimeListResponse(mediaList);
     }
 }
 

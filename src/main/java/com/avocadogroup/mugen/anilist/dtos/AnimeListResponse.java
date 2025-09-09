@@ -7,6 +7,6 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class FavoriteAnimesResponse {
+public class AnimeListResponse {
     private List<AnimeDto> data; // List of objects of type AnimeDto
 }

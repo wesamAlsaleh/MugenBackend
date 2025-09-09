@@ -1,6 +1,6 @@
 package com.avocadogroup.mugen.favoriteAnimes;
 
-import com.avocadogroup.mugen.anilist.dtos.FavoriteAnimesRequest;
+import com.avocadogroup.mugen.anilist.dtos.AnimeListRequest;
 import com.avocadogroup.mugen.anilist.services.AnilistService;
 import com.avocadogroup.mugen.global.dtos.ErrorDto;
 import com.avocadogroup.mugen.favoriteAnimes.dtos.AddFavoriteAnimeRequest;
@@ -53,11 +53,11 @@ public class FavoriteAnimeController {
     public ResponseEntity<?> getFavoriteAnimes(@RequestParam(required = false, defaultValue = "6") int perPage) {
         // Try to get the favorite animes using the service
         try {
-            // Call the favorite service method to get the favorite animes ids
+            // Get the list of favorite anime IDs from the database
             var animesIds = favoriteService.getFavoriteAnimes();
 
-            // Call the anilist service method to get the anime details based on the ids
-            var data = anilistService.fetchAnimesByIds(new FavoriteAnimesRequest(perPage, animesIds));
+            // Call the anilist APO to get the anime details using the retrieved ids
+            var data = anilistService.fetchAnimesByIds(new AnimeListRequest(perPage, animesIds));
 
             // Return the list of favorite anime IDs
             return ResponseEntity.ok().body(data);
