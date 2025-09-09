@@ -1,11 +1,17 @@
 package com.avocadogroup.mugen.anilist;
 
+import com.avocadogroup.mugen.anilist.dtos.ExploreAnimesByGenreRequest;
 import com.avocadogroup.mugen.anilist.dtos.SearchAnimesRequest;
 import com.avocadogroup.mugen.anilist.dtos.ThisSeasonAnimesRequest;
+import com.avocadogroup.mugen.anilist.enums.AnimeSeasons;
+import com.avocadogroup.mugen.anilist.enums.MediaStatus;
+import com.avocadogroup.mugen.anilist.enums.MediaTypes;
 import com.avocadogroup.mugen.anilist.services.AnilistService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 // ModelAttribute is used to bind request parameters to a model object
 // If the request is /this-season-animes?page=1&perPage=10, the modelAttribute will bind page=1 and perPage=10 to the ThisSeasonAnimesRequest object
@@ -63,4 +69,27 @@ public class AnilistController {
             throw new RuntimeException(e);
         }
     }
+
+    // API endpoint to explore animes with filters like genres, season, seasonYear, type with pagination as query parameters
+    @GetMapping("/explore-animes")
+    public ResponseEntity<?> exploreAnimes(
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "perPage", defaultValue = "10") int perPage,
+            @RequestParam(name = "season" , required = false) AnimeSeasons season,
+            @RequestParam(name = "seasonYear" , required = false) Integer seasonYear,
+            @RequestParam(name = "type", defaultValue = "ANIME") MediaTypes type,
+            @RequestParam(name = "genres", required = false) List<String> genres  // Spring will auto splits comma-separated values "&genres=ACTION,ROMANCE"
+    ) {
+        try {
+            // Try to fetch the animes from Anilist service based on genres with pagination parameters
+            var mediaList = anilistService.exploreAnimes(new ExploreAnimesByGenreRequest(page, perPage, season, seasonYear, type, genres));
+
+            // Return the fetched animes in the response body with HTTP status 200 OK
+            return ResponseEntity.ok().body(mediaList);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
+

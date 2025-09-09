@@ -2,7 +2,6 @@ package com.avocadogroup.mugen.anilist.services;
 
 import com.avocadogroup.mugen.anilist.dtos.*;
 import com.avocadogroup.mugen.anilist.enums.MediaSortBy;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -202,6 +201,67 @@ public class AnilistService {
         // Return the list of animes
         return new AnimeListResponse(mediaList);
     }
+
+    // Function to explore animes by genre with pagination
+    public ExploreAnimesByGenreResponse exploreAnimes(ExploreAnimesByGenreRequest request) {
+        // Prepare the GraphQL query
+        String query = """
+                query Query($perPage: Int, $page: Int, $season: MediaSeason, $seasonYear: Int, $genreIn: [String], $sort: [MediaSort], $type: MediaType) {
+                    Page(perPage: $perPage, page: $page) {
+                      media(season: $season, seasonYear: $seasonYear, genre_in: $genreIn, sort: $sort, type: $type) {
+                        id
+                        title {
+                          english
+                          native
+                          romaji
+                          userPreferred
+                        }
+                        coverImage {
+                          color
+                          extraLarge
+                          large
+                          medium
+                        }
+                        averageScore
+                        meanScore
+                        type
+                        status
+                        episodes
+                        genres
+                        nextAiringEpisode {
+                          airingAt
+                          episode
+                        }
+                      }
+                      }
+                    }
+                """;
+
+        // Prepare the variables for the query in a map
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("perPage", request.getPerPage());
+        variables.put("page", request.getPage());
+        variables.put("season", null);
+        variables.put("seasonYear", request.getSeasonYear());
+        variables.put("genreIn", request.getGenres() != null && !request.getGenres().isEmpty() ? request.getGenres() : null); // Must be in this format ["ACTION", "ADVENTURE", "FANTASY"] or null
+        variables.put("sort", MediaSortBy.TRENDING_DESC); // Sort by trending by default
+        variables.put("type", request.getType());
+
+        // If year is provided but season is not, put default to current season
+        if (request.getSeasonYear() != null && request.getSeason() == null) {
+            // If season is not provided, default to current season
+            variables.put("season", seasonService.getCurrentSeason()); // If season is provided but year is not, the API by default fetch random animes from that season but from any year
+        } else {
+            variables.put("season", request.getSeason());
+        }
+
+        // Try to make the POST request to AniList GraphQL endpoint with the query and variables
+        var mediaList = (List<AnimeDto>) graphQlService.postGraphQLRequestToAnilist(query, variables);
+
+        // Return the list of animes
+        return new ExploreAnimesByGenreResponse(mediaList);
+    }
+
 }
 
 
