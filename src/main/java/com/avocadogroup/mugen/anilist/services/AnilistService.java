@@ -205,5 +205,6 @@ public class AnilistService {
 
 
 // TODO: infinite scrolling, by making the frontend call this endpoint with incrementing page numbers
+// TODO: add page parameter to fetchThisSeasonAnimes and searchAnimes methods!
 
-// List of IDs to fetch specific animes [185407, 178788, 181444, 182309, 185660, 154768, 175914, 171046]
+// Sample anime Ids [185407, 178788, 181444, 182309, 185660, 154768, 175914, 171046]

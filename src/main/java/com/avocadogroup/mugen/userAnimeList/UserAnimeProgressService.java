@@ -27,15 +27,28 @@ public class UserAnimeProgressService {
         var user = authenticationService.getCurrentUser();
 
         // Check if the anime is already in the user's list
-        var existingEntry = userAnimeProgressRepository.existsByUserIdAndAnimeId(user.getId(), request.getAnimeId());
+        var existingEntry = userAnimeProgressRepository.findByUserIdAndAnimeId(user.getId(), request.getAnimeId())
+                .orElse(null);
 
-        // If it exists, remove it from the list
-        if (existingEntry) {
+        // If it exists, check if the status is the same as the request status
+        if (existingEntry != null) {
+            // If the status is the same, remove the entry from the database and exit the method
+            if (existingEntry.getStatus().equals(request.getStatus().toString())) {
             // Remove the existing entry from the database
-            userAnimeProgressRepository.deleteByUserIdAndAnimeId(user.getId(), request.getAnimeId());
+            userAnimeProgressRepository.deleteById(existingEntry.getId());
 
             // Exit the method
             return;
+            } else {
+                // If the status is different, update the status and save the entry
+                existingEntry.setStatus(request.getStatus().toString());
+
+                // Save the changed entry to the database
+                userAnimeProgressRepository.save(existingEntry);
+
+                // Exit the method
+                return;
+            }
         }
 
         // Create a new list entry and set the animeId, status, and user fields
