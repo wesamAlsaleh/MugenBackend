@@ -289,90 +289,105 @@ public class AnilistService {
         // Prepare the GraphQL query
         String query = """
                 query Query($mediaId: Int) {
-                           Page {
-                             media(id: $mediaId) {
-                             id
-                             idMal
-                             title {
-                               romaji
-                               english
-                               native
-                               userPreferred
-                             }
-                             type
-                             format
-                             status
-                             description
-                             startDate {
-                               day
-                               month
-                               year
-                             }
-                             endDate {
-                               day
-                               month
-                               year
-                             }
-                             season
-                             seasonYear
-                             episodes
-                             duration
-                             countryOfOrigin
-                             source
-                             hashtag
-                             trailer {
-                               id
-                               site
-                               thumbnail
-                             }
-                             coverImage {
-                               color
-                               extraLarge
-                               large
-                               medium
-                             }
-                             bannerImage
-                             genres
-                             averageScore
-                             meanScore
-                             popularity
-                             trending
-                             studios {
-                               nodes {
-                                 id
-                                 name
-                                 siteUrl
-                                 isAnimationStudio
-                               }
-                             }
-                             characters {
-                               nodes {
-                                 id
-                                 name {
-                                   full
-                                   userPreferred
-                                 }\s
-                                 age
-                                 gender
-                                 description
-                                 image {
-                                   large
-                                   medium
-                                 }
-                                 siteUrl
-                               }
-                             }
-                             isAdult
-                             nextAiringEpisode {
-                               airingAt
-                               episode
-                               timeUntilAiring
-                             }
-                             siteUrl
-                             }
-                           }
-                         }
-        """;
+                    Page {
+                        media(id: $mediaId) {
+                            id
+                            idMal
+                            title {
+                                romaji
+                                english
+                                native
+                                userPreferred
+                            }
+                            type
+                            format
+                            status
+                            description
+                            startDate {
+                                day
+                                month
+                                year
+                            }
+                            endDate {
+                                day
+                                month
+                                year
+                            }
+                            season
+                            seasonYear
+                            episodes
+                            duration
+                            countryOfOrigin
+                            source
+                            hashtag
+                            trailer {
+                                id
+                                site
+                                thumbnail
+                            }
+                            coverImage {
+                                color
+                                extraLarge
+                                large
+                                medium
+                            }
+                            bannerImage
+                            genres
+                            averageScore
+                            meanScore
+                            popularity
+                            trending
+                            studios {
+                                nodes {
+                                    id
+                                    name
+                                    siteUrl
+                                    isAnimationStudio
+                                }
+                            }
+                            characters {
+                                edges {
+                                    role
+                                        node {
+                                            id
+                                            name {
+                                                full
+                                                userPreferred
+                                            }
+                                            age
+                                            gender
+                                            description
+                                            image {
+                                                large
+                                                medium
+                                            }
+                                            siteUrl
+                                        }
+                                        voiceActors {
+                                            id
+                                            name {
+                                                full
+                                                userPreferred
+                                            }
+                                            image {
+                                                large
+                                                medium
+                                            }
+                                            siteUrl
+                                        }
+                                    }
+                                }
+                            isAdult
+                            nextAiringEpisode {
+                                airingAt
+                                episode
+                                timeUntilAiring
+                            }
+                            siteUrl
+                        }
+                    }
+                }
+                """;
 
         // Prepare the variables for the query in a map
         Map<String, Object> variables = new HashMap<>();
