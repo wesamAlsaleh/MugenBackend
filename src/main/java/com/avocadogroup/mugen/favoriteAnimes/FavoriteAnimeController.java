@@ -2,8 +2,10 @@ package com.avocadogroup.mugen.favoriteAnimes;
 
 import com.avocadogroup.mugen.anilist.dtos.AnimeListRequest;
 import com.avocadogroup.mugen.anilist.services.AnilistService;
+import com.avocadogroup.mugen.favoriteAnimes.dtos.UserFavoriteListRequest;
 import com.avocadogroup.mugen.global.dtos.ErrorDto;
 import com.avocadogroup.mugen.favoriteAnimes.dtos.AddFavoriteAnimeRequest;
+import com.avocadogroup.mugen.userAnimeList.dtos.UserListRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -50,14 +52,17 @@ public class FavoriteAnimeController {
 
     // API endpoint to get the ids of all favorite animes for the current user
     @GetMapping("/list")
-    public ResponseEntity<?> getFavoriteAnimes(@RequestParam(required = false, defaultValue = "6") int perPage) {
+    public ResponseEntity<?> getFavoriteAnimes(
+            @RequestParam(defaultValue = "9", required = false) int perPage,
+            @RequestParam(defaultValue = "1", required = false) int page
+    ) {
         // Try to get the favorite animes using the service
         try {
             // Get the list of favorite anime IDs from the database
             var animesIds = favoriteService.getFavoriteAnimes();
 
             // Call the anilist APO to get the anime details using the retrieved ids
-            var data = anilistService.fetchAnimesByIds(new AnimeListRequest(perPage, animesIds));
+            var data = anilistService.fetchAnimesByIds(new AnimeListRequest(page, perPage, animesIds));
 
             // Return the list of favorite anime IDs
             return ResponseEntity.ok().body(data);

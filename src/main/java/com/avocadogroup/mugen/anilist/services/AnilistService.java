@@ -5,7 +5,6 @@ import com.avocadogroup.mugen.anilist.enums.MediaSortBy;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.HashMap;
 import java.util.List;
@@ -112,8 +111,8 @@ public class AnilistService {
     public SearchAnimesResponse searchAnimes(SearchAnimesRequest request) {
         // Prepare the GraphQL query
         String query = """
-            query Query($sort: [MediaSort], $type: MediaType, $search: String, $perPage: Int) {
-                Page(perPage: $perPage) {
+            query Query($sort: [MediaSort], $type: MediaType, $search: String, $perPage: Int, $page: Int) {
+                Page(perPage: $perPage, page: $page) {
                     media(sort: $sort, type: $type, search: $search) {
                         id
                         title {
@@ -143,6 +142,7 @@ public class AnilistService {
 
         // Prepare the variables for the query in a map {page: 1, perPage: 10, type: "ANIME", search: "Naruto"}
         Map<String, Object> variables = new HashMap<>();
+        variables.put("page", request.getPage());
         variables.put("perPage", request.getPerPage());
         variables.put("type", request.getType());
         variables.put("search", request.getSearchQuery());
@@ -156,42 +156,43 @@ public class AnilistService {
     }
 
     // Function to fetch specific animes by their IDs
-    public AnimeListResponse fetchAnimesByIds(@Valid AnimeListRequest request) {
+    public AnimeListResponse fetchAnimesByIds(AnimeListRequest request) {
         // Prepare the GraphQL query
         String query = """
-                query Query($idIn: [Int], $perPage: Int) {
-                    Page(perPage: $perPage) {
-                      media(id_in: $idIn) {
-                        id
-                        title {
-                          english
-                          native
-                          romaji
-                          userPreferred
-                        }
-                        coverImage {
-                          color
-                          extraLarge
-                          large
-                          medium
-                        }
-                        averageScore
-                        meanScore
-                        type
-                        status
-                        episodes
-                        genres
-                        nextAiringEpisode {
-                          airingAt
-                          episode
-                        }
-                      }
-                    }
-                  }
+                query Query($idIn: [Int], $perPage: Int, $page: Int) {
+                     Page(perPage: $perPage, page: $page) {
+                       media(id_in: $idIn) {
+                         id
+                         title {
+                           english
+                           native
+                           romaji
+                           userPreferred
+                         }
+                         coverImage {
+                           color
+                           extraLarge
+                           large
+                           medium
+                         }
+                         averageScore
+                         meanScore
+                         type
+                         status
+                         episodes
+                         genres
+                         nextAiringEpisode {
+                           airingAt
+                           episode
+                         }
+                       }
+                     }
+                   }
                 """;
 
         // Prepare the variables for the query in a map {idIn: [185407, 178788, 181444, 182309, 185660, 154768, 175914, 171046]}
         Map<String, Object> variables = new HashMap<>();
+        variables.put("page", request.getPage());
         variables.put("perPage", request.getPerPage());
         variables.put("idIn", request.getAnimeIds());
 
@@ -205,6 +206,5 @@ public class AnilistService {
 
 
 // TODO: infinite scrolling, by making the frontend call this endpoint with incrementing page numbers
-// TODO: add page parameter to fetchThisSeasonAnimes and searchAnimes methods!
 
 // Sample anime Ids [185407, 178788, 181444, 182309, 185660, 154768, 175914, 171046]

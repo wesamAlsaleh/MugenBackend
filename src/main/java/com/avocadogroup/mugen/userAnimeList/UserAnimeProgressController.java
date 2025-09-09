@@ -40,7 +40,7 @@ public class UserAnimeProgressController {
             var ids = userAnimeService.getUserListIds(request);
 
             // Call the Anilist API to get the anime details using the retrieved ids
-            var data = anilistService.fetchAnimesByIds(new AnimeListRequest(request.getPerPage(), ids));
+            var data = anilistService.fetchAnimesByIds(new AnimeListRequest(request.getPage(), request.getPerPage(), ids));
 
             // Return the response with the user's anime list
             return ResponseEntity.ok().body(data);

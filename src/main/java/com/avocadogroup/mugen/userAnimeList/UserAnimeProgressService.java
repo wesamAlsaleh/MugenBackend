@@ -1,9 +1,5 @@
 package com.avocadogroup.mugen.userAnimeList;
 
-import com.avocadogroup.mugen.anilist.dtos.AnimeDto;
-import com.avocadogroup.mugen.anilist.dtos.AnimeListRequest;
-import com.avocadogroup.mugen.anilist.dtos.AnimeListResponse;
-import com.avocadogroup.mugen.anilist.services.AnilistService;
 import com.avocadogroup.mugen.authentication.services.AuthenticationService;
 import com.avocadogroup.mugen.userAnimeList.dtos.AddAnimeToListRequest;
 import com.avocadogroup.mugen.userAnimeList.dtos.UserListRequest;
