@@ -1,4 +1,4 @@
-package com.avocadogroup.mugen.watchList.favoriteAnimes.dtos;
+package com.avocadogroup.mugen.favoriteAnimes.dtos;
 
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package com.avocadogroup.mugen.watchList.favoriteAnimes;
+package com.avocadogroup.mugen.favoriteAnimes;
 
 import org.mapstruct.Mapper;
 
