@@ -39,6 +39,8 @@ public class SecurityConfig {
         // Disable CSRF (since we're using stateless sessions / APIs)
         http.csrf(AbstractHttpConfigurer::disable);
 
+        // TEMPLATE: .requestMatchers(HttpMethod., "").permitAll()
+
         // Define endpoint access rules (what endpoints that requires authentication and what not "Public/Permit")
         http.authorizeHttpRequests(request ->
                 request
@@ -53,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "anime/top-this-season-animes").permitAll()
                         .requestMatchers(HttpMethod.GET, "anime/search-animes").permitAll()
                         .requestMatchers(HttpMethod.GET, "anime/explore-animes").permitAll()
+                        .requestMatchers(HttpMethod.GET, "anime/genres").permitAll()
                 // Role Based Endpoints (Requires specific role)
                         .requestMatchers("/admin/**").hasRole(UserRole.ADMIN.name()) // Only users with ADMIN role can access /admin/**
                 // All other endpoints (authentication token required)

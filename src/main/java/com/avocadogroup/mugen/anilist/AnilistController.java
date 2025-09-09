@@ -1,12 +1,14 @@
 package com.avocadogroup.mugen.anilist;
 
 import com.avocadogroup.mugen.anilist.dtos.ExploreAnimesByGenreRequest;
+import com.avocadogroup.mugen.anilist.dtos.GenresRequest;
 import com.avocadogroup.mugen.anilist.dtos.SearchAnimesRequest;
 import com.avocadogroup.mugen.anilist.dtos.ThisSeasonAnimesRequest;
 import com.avocadogroup.mugen.anilist.enums.AnimeSeasons;
 import com.avocadogroup.mugen.anilist.enums.MediaStatus;
 import com.avocadogroup.mugen.anilist.enums.MediaTypes;
 import com.avocadogroup.mugen.anilist.services.AnilistService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -86,6 +88,20 @@ public class AnilistController {
 
             // Return the fetched animes in the response body with HTTP status 200 OK
             return ResponseEntity.ok().body(mediaList);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // API endpoint to get the genres list based on user preferred language
+    @GetMapping("/genres")
+    public ResponseEntity<?> getGenres(@Valid @ModelAttribute GenresRequest request) {
+        try {
+            // Try to fetch the genres list from Anilist service
+            var genres = anilistService.fetchGenres(request.getLang());
+
+            // Return the fetched genres in the response body with HTTP status 200 OK
+            return ResponseEntity.ok().body(genres);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

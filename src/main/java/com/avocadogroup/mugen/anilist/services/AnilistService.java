@@ -2,6 +2,7 @@ package com.avocadogroup.mugen.anilist.services;
 
 import com.avocadogroup.mugen.anilist.dtos.*;
 import com.avocadogroup.mugen.anilist.enums.MediaSortBy;
+import com.avocadogroup.mugen.users.enums.UserPreferredLanguage;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -260,6 +261,27 @@ public class AnilistService {
 
         // Return the list of animes
         return new ExploreAnimesByGenreResponse(mediaList);
+    }
+
+    // Function to fetch the list of genres (Not available from Anilist)
+    public GenresResponse fetchGenres(UserPreferredLanguage language) {
+        // Since Anilist does not provide an endpoint to fetch genres, we will return a hardcoded list of genres
+        List<String> EnGenres = List.of(
+                "Action", "Adventure", "Comedy", "Drama", "Ecchi", "Fantasy", "Horror",
+                "Mahou Shoujo", "Mecha", "Music", "Mystery", "Psychological", "Romance",
+                "Sci-Fi", "Slice of Life", "Sports", "Supernatural", "Thriller"
+        );
+
+        List<String> ArGenres = List.of(
+                "أكشن", "مغامرة", "كوميديا", "دراما", "إيتشي", "فانتازيا", "رعب",
+                "ماهو شوجو", "ميكا", "موسيقى", "غموض", "نفسية", "رومانسية",
+                "خيال علمي", "شريحة من الحياة", "رياضة", "خارق للطبيعة", "إثارة"
+        );
+
+        // Return the list of genres wrapped in a GenresResponse object based on user preferred language
+        var genres = language == UserPreferredLanguage.AR ? ArGenres : EnGenres;
+
+        return new GenresResponse(genres);
     }
 
 }
