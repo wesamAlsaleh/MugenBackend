@@ -453,59 +453,62 @@ public class AnilistService {
     }
 
     // Function to fetch studio animes
-    public StudioAnimesResponse fetchStudioAnimes(Integer studioId){
+    public StudioDetailsResponse fetchStudioDetails(StudioDetailsRequest request){
         // Prepare the GraphQL query
         String query = """ 
-                query Query($studioId: Int) {
+                query Query($studioId: Int, $sort: [MediaSort], $page: Int, $perPage: Int) {
                   Studio(id: $studioId) {
-                      name
-                      isAnimationStudio
-                      media {
-                        edges {
-                          node {
-                            id
-                            title {
-                              english
-                              native
-                              romaji
-                              userPreferred
-                            }
-                            coverImage {
-                              color
-                              extraLarge
-                              large
-                              medium
-                            }
-                            season
-                            seasonYear
-                            averageScore
-                            meanScore
-                            type
-                            status
-                            episodes
-                            genres
-                            nextAiringEpisode {
-                              airingAt
-                              episode
-                              timeUntilAiring
-                            }
-                            siteUrl
+                    name
+                    isAnimationStudio
+                    media(sort: $sort, page: $page, perPage: $perPage) {
+                      edges {
+                        node {
+                          id
+                          title {
+                            romaji
+                            english
+                            native
+                            userPreferred
                           }
+                          coverImage {
+                            color
+                            extraLarge
+                            large
+                            medium
+                          }
+                          season
+                          seasonYear
+                          averageScore
+                          meanScore
+                          type
+                          status
+                          episodes
+                          genres
+                          nextAiringEpisode {
+                            airingAt
+                            episode
+                            timeUntilAiring
+                          }
+                          siteUrl
                         }
                       }
+                    }
                   }
                 }
                 """;
 
         // Prepare the variables for the query in a map
         Map<String, Object> variables = new HashMap<>();
-        variables.put("studioId", studioId);
+        variables.put("page", request.getPage());
+        variables.put("perPage", request.getPerPage());
+        variables.put("studioId", request.getStudioId());
+        variables.put("sort", MediaSortBy.START_DATE_DESC); // Sort by newest to oldest animes
 
         // Try to make the POST request to AniList GraphQL endpoint with the query and variables
         var studioDetails = graphQlService.postGraphQLRequestToFetchStudioWithMedia(query, variables);
 
         // Return the studio details wrapped in a StudioAnimesResponse object
-        return new StudioAnimesResponse(studioDetails);
+        return new StudioDetailsResponse(studioDetails);
     }
 }
 

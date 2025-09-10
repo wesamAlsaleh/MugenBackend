@@ -5,6 +5,8 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class StudioAnimesRequest {
+public class StudioDetailsRequest {
+    private Integer page;
+    private Integer perPage;
     private Integer studioId;
 }

@@ -120,10 +120,14 @@ public class AnilistController {
 
     // API endpoint to get the animes from for specific studio by its ID
     @GetMapping("/studio")
-    public ResponseEntity<?> getStudioAnimes(@ModelAttribute StudioAnimesRequest request) {
+    public ResponseEntity<?> getStudioDetails(
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "perPage", defaultValue = "10") int perPage,
+            @RequestParam(name = "id") Integer studioId
+    ) {
         try {
             // Try to fetch the animes from Anilist service based on studio ID with pagination parameters
-            var studioDetails = anilistService.fetchStudioAnimes(request.getStudioId());
+            var studioDetails = anilistService.fetchStudioDetails(new StudioDetailsRequest(page, perPage, studioId));
 
             // Return the fetched animes in the response body with HTTP status 200 OK
             return ResponseEntity.ok().body(studioDetails);
