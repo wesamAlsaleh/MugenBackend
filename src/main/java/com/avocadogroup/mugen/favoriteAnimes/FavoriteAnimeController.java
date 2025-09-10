@@ -2,11 +2,7 @@ package com.avocadogroup.mugen.favoriteAnimes;
 
 import com.avocadogroup.mugen.anilist.dtos.AnimeListRequest;
 import com.avocadogroup.mugen.anilist.services.AnilistService;
-import com.avocadogroup.mugen.favoriteAnimes.dtos.UserFavoriteListRequest;
 import com.avocadogroup.mugen.global.dtos.ErrorDto;
-import com.avocadogroup.mugen.favoriteAnimes.dtos.AddFavoriteAnimeRequest;
-import com.avocadogroup.mugen.userAnimeList.dtos.UserListRequest;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -22,11 +18,13 @@ public class FavoriteAnimeController {
 
     // API endpoint to add an anime to favorites using animeId as a request parameter
     @PostMapping("/add")
-    public ResponseEntity<?> addFavoriteAnime(@Valid @ModelAttribute AddFavoriteAnimeRequest request) {
+    public ResponseEntity<?> addFavoriteAnime(
+            @RequestParam(name = "id") Long animeId
+    ) {
         // Try to add the favorite anime using the service
         try {
             // Call the service method to add the favorite anime
-            favoriteService.addFavoriteAnime(request.getAnimeId());
+            favoriteService.addFavoriteAnime(animeId);
 
             // Return a success response
             return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -37,11 +35,13 @@ public class FavoriteAnimeController {
 
     // API endpoint to remove an anime from favorites using animeId as a request parameter
     @DeleteMapping("/remove")
-    public ResponseEntity<?> removeFavoriteAnime(@Valid @ModelAttribute AddFavoriteAnimeRequest request) {
+    public ResponseEntity<?> removeFavoriteAnime(
+            @RequestParam(name = "id") Long animeId
+    ) {
         // Try to add the favorite anime using the service
         try {
             // Call the service method to remove the favorite anime
-            favoriteService.removeFavoriteAnime(request.getAnimeId());
+            favoriteService.removeFavoriteAnime(animeId);
 
             // Return a success response
             return ResponseEntity.noContent().build();
