@@ -2,10 +2,9 @@ package com.avocadogroup.mugen.anilist;
 
 import com.avocadogroup.mugen.anilist.dtos.*;
 import com.avocadogroup.mugen.anilist.enums.AnimeSeasons;
-import com.avocadogroup.mugen.anilist.enums.MediaStatus;
 import com.avocadogroup.mugen.anilist.enums.MediaTypes;
 import com.avocadogroup.mugen.anilist.services.AnilistService;
-import jakarta.validation.Valid;
+import com.avocadogroup.mugen.users.enums.UserPreferredLanguage;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,10 +27,13 @@ public class AnilistController {
 
     // API endpoint to get the season's anime list
     @GetMapping("/this-season-animes")
-    public ResponseEntity<?> getThisSeasonAnimes(@ModelAttribute ThisSeasonAnimesRequest request) {
+    public ResponseEntity<?> getThisSeasonAnimes(
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "perPage", defaultValue = "15") int perPage
+    ) {
         try {
         // Try to fetch this season animes from Anilist service (with pagination parameters)
-        var mediaList = anilistService.fetchThisSeasonAnimes(request);
+        var mediaList = anilistService.fetchThisSeasonAnimes(new ThisSeasonAnimesRequest(page, perPage));
 
         // Return the fetched animes in the response body with HTTP status 200 OK
         return ResponseEntity.ok().body(mediaList);
@@ -57,10 +59,15 @@ public class AnilistController {
 
     // API endpoint for searching animes by title with pagination as query parameters!
     @GetMapping("/search-animes")
-    public ResponseEntity<?> searchAnimes(@ModelAttribute SearchAnimesRequest request) {
+    public ResponseEntity<?> searchAnimes(
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "perPage", defaultValue = "10") int perPage,
+            @RequestParam(name = "type", defaultValue = "ANIME") MediaTypes type,
+            @RequestParam(name = "searchQuery", defaultValue = "") String searchQuery
+    ) {
         try {
             // Try to fetch searched animes from Anilist service (based on title) with pagination parameters
-            var mediaList = anilistService.searchAnimes(request);
+            var mediaList = anilistService.searchAnimes(new SearchAnimesRequest(page, perPage, type, searchQuery));
 
             // Return the fetched animes in the response body with HTTP status 200 OK
             return ResponseEntity.ok().body(mediaList);
@@ -92,10 +99,11 @@ public class AnilistController {
 
     // API endpoint to get the genres list based on user preferred language
     @GetMapping("/genres")
-    public ResponseEntity<?> getGenres(@Valid @ModelAttribute GenresRequest request) {
+    public ResponseEntity<?> getGenres(
+            @RequestParam(name = "lang", defaultValue = "EN") UserPreferredLanguage lang) {
         try {
             // Try to fetch the genres list from Anilist service
-            var genres = anilistService.fetchGenres(request.getLang());
+            var genres = anilistService.fetchGenres(lang);
 
             // Return the fetched genres in the response body with HTTP status 200 OK
             return ResponseEntity.ok().body(genres);
