@@ -12,6 +12,7 @@ public class AnimeNodeDto {
     private int id;
     private TitleDto title;
     private CoverImageDto coverImage;
+    private StartDateDto startDate;
     private AnimeSeasons season;
     private Integer seasonYear;
     private Integer averageScore;

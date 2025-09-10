@@ -476,6 +476,11 @@ public class AnilistService {
                             large
                             medium
                           }
+                          startDate {
+                            day
+                            month
+                            year
+                          }
                           season
                           seasonYear
                           averageScore

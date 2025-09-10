@@ -40,6 +40,21 @@ public class GraphQlService {
         return payload;
     }
 
+    //
+    private HttpEntity<Map<String, Object>> createRequestWithBody(String query, Map<String, Object> variables){
+        // Set up HTTP headers for the request
+        HttpHeaders requestHeaders = new HttpHeaders();
+
+        // Set the content type to application/json
+        requestHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+        // Create the request body using the buildGraphQLPayload method
+        Map<String, Object> requestBody = buildGraphQLPayload(query, variables);
+
+        // Create and return the HTTP entity with headers and payload and return it as {"query": "...", "variables": {...}}
+        return new HttpEntity<>(requestBody, requestHeaders);
+    }
+
     /**
      * Sends a POST request to the AniList GraphQL API with the provided query and variables.
      *
@@ -52,17 +67,8 @@ public class GraphQlService {
         // Create a RestTemplate instance to make HTTP requests
         RestTemplate restTemplate = new RestTemplate();
 
-        // Set up HTTP headers for the request
-        HttpHeaders requestHeaders = new HttpHeaders();
-
-        // Set the content type to application/json
-        requestHeaders.setContentType(MediaType.APPLICATION_JSON);
-
-        // Create the request body using the buildGraphQLPayload method
-        Map<String, Object> requestBody = buildGraphQLPayload(query, variables);
-
         // Create the HTTP entity with headers and payload and return it as {"query": "...", "variables": {...}}
-        HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, requestHeaders);
+        HttpEntity<Map<String, Object>> request = createRequestWithBody(query, variables);
 
         // Try to make the POST request to the AniList GraphQL endpoint with the provided query and variables
         try {
@@ -104,17 +110,8 @@ public class GraphQlService {
         // Create a RestTemplate instance to make HTTP requests
         RestTemplate restTemplate = new RestTemplate();
 
-        // Set up HTTP headers for the request
-        HttpHeaders requestHeaders = new HttpHeaders();
-
-        // Set the content type to application/json
-        requestHeaders.setContentType(MediaType.APPLICATION_JSON);
-
-        // Create the request body using the buildGraphQLPayload method
-        Map<String, Object> requestBody = buildGraphQLPayload(query, variables);
-
         // Create the HTTP entity with headers and payload and return it as {"query": "...", "variables": {...}}
-        HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, requestHeaders);
+        HttpEntity<Map<String, Object>> request = createRequestWithBody(query, variables);
 
         // Try to make the POST request to the AniList GraphQL endpoint with the provided query and variables
         try {
