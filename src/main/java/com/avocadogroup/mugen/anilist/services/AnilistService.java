@@ -452,6 +452,61 @@ public class AnilistService {
         return new AnimeDetailsResponse(anime);
     }
 
+    // Function to fetch studio animes
+    public StudioAnimesResponse fetchStudioAnimes(Integer studioId){
+        // Prepare the GraphQL query
+        String query = """ 
+                query Query($studioId: Int) {
+                  Studio(id: $studioId) {
+                      name
+                      isAnimationStudio
+                      media {
+                        edges {
+                          node {
+                            id
+                            title {
+                              english
+                              native
+                              romaji
+                              userPreferred
+                            }
+                            coverImage {
+                              color
+                              extraLarge
+                              large
+                              medium
+                            }
+                            season
+                            seasonYear
+                            averageScore
+                            meanScore
+                            type
+                            status
+                            episodes
+                            genres
+                            nextAiringEpisode {
+                              airingAt
+                              episode
+                              timeUntilAiring
+                            }
+                            siteUrl
+                          }
+                        }
+                      }
+                  }
+                }
+                """;
+
+        // Prepare the variables for the query in a map
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("studioId", studioId);
+
+        // Try to make the POST request to AniList GraphQL endpoint with the query and variables
+        var studioDetails = graphQlService.postGraphQLRequestToFetchStudioWithMedia(query, variables);
+
+        // Return the studio details wrapped in a StudioAnimesResponse object
+        return new StudioAnimesResponse(studioDetails);
+    }
 }
 
 

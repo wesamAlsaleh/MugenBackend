@@ -1,5 +1,6 @@
 package com.avocadogroup.mugen.anilist.services;
 
+import com.avocadogroup.mugen.anilist.dtos.StudioDto;
 import com.avocadogroup.mugen.configs.AnilistConfig;
 import com.avocadogroup.mugen.global.exceptions.BadRequestException;
 import com.avocadogroup.mugen.global.exceptions.InternalServerErrorException;
@@ -44,7 +45,7 @@ public class GraphQlService {
      *
      * @param query     the GraphQL query string to execute
      * @param variables a map of variables to include in the GraphQL request
-     * @return a list of objects representing the "media" node from the response
+     * @return a list of objects representing the "media" node from the response "data.Page.media"
      * @throws InternalServerErrorException if the request fails or the response cannot be parsed
      */
     public List<?> postGraphQLRequestToAnilist(String query, Map<String, Object> variables) {
@@ -84,10 +85,63 @@ public class GraphQlService {
             // Jump to the "media" node to get the list of animes (Array of media objects)
             JsonNode mediaNode = root.path("data").path("Page").path("media");
 
-            // Convert the "media" node to a list of objects and return it (using TypeReference for generic type, now its empty which means List<Object>)
+            // Convert the "media" node to a list of objects and return it (using TypeReference for generic type, which means List<Object>)
             return objectMapper.convertValue(mediaNode, new TypeReference<>() {});
         } catch (Exception e) {
             throw new BadRequestException(e.getMessage()); // TODO: Log the error message and display to the client "Error fetching data from Anilist"
         }
     }
+
+    /**
+     * Sends a POST request to the AniList GraphQL API with the provided query and variables.
+     *
+     * @param query     the GraphQL query string to execute
+     * @param variables a map of variables to include in the GraphQL request
+     * @return a StudioDto representing the "Studio" node from the response "data.Studio"
+     * @throws InternalServerErrorException if the request fails or the response cannot be parsed
+     */
+    public StudioDto postGraphQLRequestToFetchStudioWithMedia(String query, Map<String, Object> variables) {
+        // Create a RestTemplate instance to make HTTP requests
+        RestTemplate restTemplate = new RestTemplate();
+
+        // Set up HTTP headers for the request
+        HttpHeaders requestHeaders = new HttpHeaders();
+
+        // Set the content type to application/json
+        requestHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+        // Create the request body using the buildGraphQLPayload method
+        Map<String, Object> requestBody = buildGraphQLPayload(query, variables);
+
+        // Create the HTTP entity with headers and payload and return it as {"query": "...", "variables": {...}}
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, requestHeaders);
+
+        // Try to make the POST request to the AniList GraphQL endpoint with the provided query and variables
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    anilistConfig.getApiUrl(), // Url
+                    HttpMethod.POST, // HTTP method
+                    request, // Request entity
+                    String.class // Response type
+            );
+
+            // Get the response body to extract data using Jackson ObjectMapper
+            String responseBody = response.getBody();
+
+            // Parse the response body using Jackson ObjectMapper to extract data
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            // Read the response body as a JsonNode tree structure
+            JsonNode root = objectMapper.readTree(responseBody);
+
+            // Jump to the "Studio" node to get the studio details (name, isAnimationStudio, media)
+            JsonNode studioNode = root.path("data").path("Studio");
+
+            // Convert the "Studio" node to a StudioDto object and return it
+            return objectMapper.convertValue(studioNode, StudioDto.class);
+        } catch (Exception e) {
+            throw new BadRequestException(e.getMessage()); // TODO: Log the error message and display to the client "Error fetching data from Anilist"
+        }
+    }
+
 }

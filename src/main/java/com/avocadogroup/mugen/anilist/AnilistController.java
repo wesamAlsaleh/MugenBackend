@@ -1,9 +1,6 @@
 package com.avocadogroup.mugen.anilist;
 
-import com.avocadogroup.mugen.anilist.dtos.ExploreAnimesByGenreRequest;
-import com.avocadogroup.mugen.anilist.dtos.GenresRequest;
-import com.avocadogroup.mugen.anilist.dtos.SearchAnimesRequest;
-import com.avocadogroup.mugen.anilist.dtos.ThisSeasonAnimesRequest;
+import com.avocadogroup.mugen.anilist.dtos.*;
 import com.avocadogroup.mugen.anilist.enums.AnimeSeasons;
 import com.avocadogroup.mugen.anilist.enums.MediaStatus;
 import com.avocadogroup.mugen.anilist.enums.MediaTypes;
@@ -116,6 +113,20 @@ public class AnilistController {
 
             // Return the fetched genres in the response body with HTTP status 200 OK
             return ResponseEntity.ok().body(anime);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // API endpoint to get the animes from for specific studio by its ID
+    @GetMapping("/studio")
+    public ResponseEntity<?> getStudioAnimes(@ModelAttribute StudioAnimesRequest request) {
+        try {
+            // Try to fetch the animes from Anilist service based on studio ID with pagination parameters
+            var studioDetails = anilistService.fetchStudioAnimes(request.getStudioId());
+
+            // Return the fetched animes in the response body with HTTP status 200 OK
+            return ResponseEntity.ok().body(studioDetails);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
