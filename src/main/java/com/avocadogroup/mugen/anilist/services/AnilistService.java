@@ -388,6 +388,54 @@ public class AnilistService {
                                 timeUntilAiring
                             }
                             siteUrl
+                            relations {
+                                edges {
+                                    relationType
+                                    node {
+                                        id
+                                        title {
+                                            english
+                                            native
+                                            romaji
+                                            userPreferred
+                                        }
+                                        coverImage {
+                                            large
+                                            medium
+                                        }
+                                        type
+                                        format
+                                        status
+                                        episodes
+                                        siteUrl
+                                    }
+                                }
+                            }
+                            recommendations {
+                                edges {
+                                    node {
+                                        rating
+                                        mediaRecommendation {
+                                            id
+                                            title {
+                                                english
+                                                native
+                                                romaji
+                                                userPreferred
+                                            }
+                                            coverImage {
+                                                large
+                                                medium
+                                            }
+                                            type
+                                            format
+                                            status
+                                            episodes
+                                            siteUrl
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }

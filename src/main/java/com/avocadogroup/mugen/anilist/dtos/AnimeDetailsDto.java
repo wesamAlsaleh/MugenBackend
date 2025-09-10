@@ -40,4 +40,6 @@ public class AnimeDetailsDto {
     private boolean isAdult;
     private NextAiringEpisodeDto nextAiringEpisode;
     private String siteUrl;
+    private RelationsDto relations;
+    private RecommendationsDto recommendations;
 }
