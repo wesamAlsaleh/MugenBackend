@@ -29,10 +29,9 @@ import java.time.Instant;
 @AllArgsConstructor
 public class AuthenticationService {
     private final AuthenticationMapper authenticationMapper;
+    private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
-    private final UserMapper userMapper;
     private final JwtService jwtService;
     private final EmailService emailService;
     private final PasswordResetOtpRepository passwordResetOtpRepository;
@@ -115,15 +114,6 @@ public class AuthenticationService {
         // Fetch the user from the database using the user ID
         return userRepository.findById(userId)
                 .orElseThrow(()-> new ResourceNotFoundException("User not found")); // This should never throw since the user is authenticated
-    }
-
-    // Function to get the currently authenticated user's details from the security context holder
-    public UserDto me(){
-        // Get the current user entity
-        var user = getCurrentUser();
-
-        // Return the user as a UserDto
-        return userMapper.toDto(user);
     }
 
     // Function to refresh access token using a valid refresh token
