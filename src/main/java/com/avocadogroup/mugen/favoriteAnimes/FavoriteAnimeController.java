@@ -3,6 +3,7 @@ package com.avocadogroup.mugen.favoriteAnimes;
 import com.avocadogroup.mugen.anilist.dtos.AnimeListRequest;
 import com.avocadogroup.mugen.anilist.services.AnilistService;
 import com.avocadogroup.mugen.global.dtos.ErrorDto;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/favorites")
 @AllArgsConstructor
+@Tag(name = "Favorite Animes", description = "API endpoints for managing favorite animes")
 public class FavoriteAnimeController {
     private final FavoriteAnimeService favoriteService;
     private final AnilistService anilistService;

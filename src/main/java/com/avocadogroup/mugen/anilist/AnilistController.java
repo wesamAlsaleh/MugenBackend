@@ -5,6 +5,7 @@ import com.avocadogroup.mugen.anilist.enums.AnimeSeasons;
 import com.avocadogroup.mugen.anilist.enums.MediaTypes;
 import com.avocadogroup.mugen.anilist.services.AnilistService;
 import com.avocadogroup.mugen.users.enums.UserPreferredLanguage;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/anime")
 @AllArgsConstructor
+@Tag(name = "Anilist", description = "API endpoints for fetching anime data from Anilist GraphQL API")
 public class AnilistController {
     private final AnilistService anilistService;
 

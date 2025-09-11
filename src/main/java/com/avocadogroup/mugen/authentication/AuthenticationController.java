@@ -3,6 +3,7 @@ package com.avocadogroup.mugen.authentication;
 import com.avocadogroup.mugen.authentication.dtos.*;
 import com.avocadogroup.mugen.authentication.services.AuthenticationService;
 import com.avocadogroup.mugen.global.dtos.ErrorDto;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RestController
 @AllArgsConstructor // Lombok annotation to generate a constructor with parameters for all fields
 @RequestMapping("/auth")
+@Tag(name = "Authentication", description = "API endpoints for user authentication and management")
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
 

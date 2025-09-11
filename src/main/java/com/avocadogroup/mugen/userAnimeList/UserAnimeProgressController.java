@@ -4,6 +4,7 @@ import com.avocadogroup.mugen.anilist.dtos.AnimeListRequest;
 import com.avocadogroup.mugen.anilist.services.AnilistService;
 import com.avocadogroup.mugen.userAnimeList.dtos.AddAnimeToListRequest;
 import com.avocadogroup.mugen.userAnimeList.dtos.UserListRequest;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/list")
 @AllArgsConstructor
+@Tag(name = "User Anime List", description = "API endpoints for managing user's anime list")
 public class UserAnimeProgressController {
     private final UserAnimeProgressService userAnimeService;
     private final AnilistService anilistService;
