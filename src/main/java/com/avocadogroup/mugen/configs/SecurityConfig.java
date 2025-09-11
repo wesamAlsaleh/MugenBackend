@@ -52,6 +52,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,"auth/verify-password-reset-otp").permitAll()
                         .requestMatchers(HttpMethod.POST,"auth/reset-password").permitAll()
                         .requestMatchers(HttpMethod.GET, "anime/**").permitAll()
+                // Swagger Endpoints (no authentication required)
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui.html").permitAll()
+                        .requestMatchers("/webjars/**").permitAll() // Required for Swagger UI static files (CSS, JS)
                 // Role Based Endpoints (Requires specific role)
                         .requestMatchers("/admin/**").hasRole(UserRole.ADMIN.name()) // Only users with ADMIN role can access /admin/**
                 // All other endpoints (authentication token required)
