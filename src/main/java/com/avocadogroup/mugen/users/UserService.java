@@ -29,8 +29,11 @@ public class UserService {
 
         // Update the user's details if provided
         if (username != null && !username.isBlank()) {
-            // Update username
-            user.setUsername(username);
+            // Update username only if it's different from the current one
+            if(!username.equals(user.getUsername())){
+                // Update username
+                user.setUsername(username);
+            }
         }
 
         if (email != null && !email.isBlank()) {
@@ -49,5 +52,4 @@ public class UserService {
         // Save the updated user entity
         userRepository.save(user);
     }
-
 }
