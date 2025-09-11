@@ -32,19 +32,16 @@ public class UserAnimeProgressService {
             if (existingEntry.getStatus().equals(request.getStatus().toString())) {
             // Remove the existing entry from the database
             userAnimeProgressRepository.deleteById(existingEntry.getId());
-
-            // Exit the method
-            return;
             } else {
                 // If the status is different, update the status and save the entry
                 existingEntry.setStatus(request.getStatus().toString());
 
                 // Save the changed entry to the database
                 userAnimeProgressRepository.save(existingEntry);
-
-                // Exit the method
-                return;
             }
+
+            // Exit the method
+            return;
         }
 
         // Create a new list entry and set the animeId, status, and user fields

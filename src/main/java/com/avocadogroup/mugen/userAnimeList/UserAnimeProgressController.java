@@ -19,11 +19,12 @@ public class UserAnimeProgressController {
     // API endpoint to add an anime to user's anime list
     @PostMapping("/add")
     public ResponseEntity<?> addAnimeToList(
-            @Valid @RequestBody AddAnimeToListRequest request
+            @RequestParam(name = "id") Long animeId,
+            @RequestParam(name = "status") AnimeStatus status
     ) {
         try {
         // Call the service method to add the anime to user's list
-         userAnimeService.addAnimeToList(request);
+         userAnimeService.addAnimeToList(new AddAnimeToListRequest(animeId, status));
 
         // Implementation to add anime to user's list
         return ResponseEntity.ok().build();
@@ -34,13 +35,17 @@ public class UserAnimeProgressController {
 
     // API endpoint to get the user list based on status from the request parameter
     @GetMapping
-    public ResponseEntity<?> getUserList(@ModelAttribute UserListRequest request) {
+    public ResponseEntity<?> getUserList(
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "perPage", defaultValue = "10") int perPage,
+            @RequestParam(name = "status", defaultValue = "WATCHING") AnimeStatus status
+    ) {
         try {
             // Get the user list ids from the db
-            var ids = userAnimeService.getUserListIds(request);
+            var ids = userAnimeService.getUserListIds(new UserListRequest(page, perPage, status));
 
             // Call the Anilist API to get the anime details using the retrieved ids
-            var data = anilistService.fetchAnimesByIds(new AnimeListRequest(request.getPage(), request.getPerPage(), ids));
+            var data = anilistService.fetchAnimesByIds(new AnimeListRequest(page, perPage, ids));
 
             // Return the response with the user's anime list
             return ResponseEntity.ok().body(data);
