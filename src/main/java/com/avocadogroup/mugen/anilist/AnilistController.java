@@ -64,7 +64,7 @@ public class AnilistController {
     public ResponseEntity<?> searchAnimes(
             @RequestParam(name = "page", defaultValue = "1") int page,
             @RequestParam(name = "perPage", defaultValue = "10") int perPage,
-            @RequestParam(name = "type", defaultValue = "ANIME") MediaTypes type,
+            @RequestParam(name = "type", defaultValue = "ANIME") MediaTypes type, // Default to ANIME, can be MANGA as well
             @RequestParam(name = "searchQuery", defaultValue = "") String searchQuery
     ) {
         try {
@@ -84,7 +84,7 @@ public class AnilistController {
             @RequestParam(name = "page", defaultValue = "1") int page,
             @RequestParam(name = "perPage", defaultValue = "10") int perPage,
             @RequestParam(name = "season" , required = false) AnimeSeasons season,
-            @RequestParam(name = "seasonYear" , required = false) Integer seasonYear,
+            @RequestParam(name = "seasonYear" , required = false) Integer seasonYear, // de
             @RequestParam(name = "type", defaultValue = "ANIME") MediaTypes type,
             @RequestParam(name = "genres", required = false) List<String> genres  // Spring will auto splits comma-separated values "&genres=ACTION,ROMANCE"
     ) {

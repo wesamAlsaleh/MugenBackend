@@ -2,6 +2,7 @@ package com.avocadogroup.mugen.users.controllers;
 
 import com.avocadogroup.mugen.users.UserService;
 import com.avocadogroup.mugen.users.dtos.UpdateUserRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -33,6 +34,7 @@ public class UserController {
 
     // API Endpoint for updating user profile (update current user info such as username, email)
     @PatchMapping("/me")
+    @Operation(summary = "Update current user details", description = "Update the username and/or email of the currently authenticated user.")
     public ResponseEntity<?> updateUser(
             @Valid @RequestBody UpdateUserRequest request
     ) {
