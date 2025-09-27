@@ -111,6 +111,9 @@ public class AuthenticationService {
         // Get the user ID from the security context holder
         var userId = getSecurityContextPrincipal();
 
+        // If no user ID found return null (this should never happen since the user is authenticated)
+        if(userId == null) return null;
+
         // Fetch the user from the database using the user ID
         return userRepository.findById(userId)
                 .orElseThrow(()-> new ResourceNotFoundException("User not found")); // This should never throw since the user is authenticated

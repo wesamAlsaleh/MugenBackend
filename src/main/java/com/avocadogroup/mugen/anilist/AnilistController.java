@@ -4,6 +4,9 @@ import com.avocadogroup.mugen.anilist.dtos.*;
 import com.avocadogroup.mugen.anilist.enums.AnimeSeasons;
 import com.avocadogroup.mugen.anilist.enums.MediaTypes;
 import com.avocadogroup.mugen.anilist.services.AnilistService;
+import com.avocadogroup.mugen.authentication.services.AuthenticationService;
+import com.avocadogroup.mugen.authentication.services.JwtService;
+import com.avocadogroup.mugen.userAnimeList.UserAnimeProgressService;
 import com.avocadogroup.mugen.users.enums.UserPreferredLanguage;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -11,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 // ModelAttribute is used to bind request parameters to a model object
 // If the request is /this-season-animes?page=1&perPage=10, the modelAttribute will bind page=1 and perPage=10 to the ThisSeasonAnimesRequest object
@@ -26,6 +30,8 @@ import java.util.List;
 @Tag(name = "Anilist", description = "API endpoints for fetching anime data from Anilist GraphQL API")
 public class AnilistController {
     private final AnilistService anilistService;
+    private final JwtService jwtService;
+    private final UserAnimeProgressService userAnimeProgressService;
 
     // API endpoint to get the season's anime list
     @GetMapping("/this-season-animes")
@@ -116,13 +122,16 @@ public class AnilistController {
 
     // API endpoint to get the anime details by its ID
     @GetMapping
-    public ResponseEntity<?> getAnimeDetailsById(@RequestParam(name = "id") Integer animeId) {
+    public ResponseEntity<?> getAnimeDetailsById(
+            @RequestParam(name = "id") Integer animeId,
+            @RequestParam(name = "token", required = false) String token // Optional token for authenticated requests
+    ) {
         try {
             // Try to fetch the anime details from Anilist service based on anime ID
-            var anime = anilistService.fetchAnimeDetailsById(animeId);
+            var anime = anilistService.fetchAnimeDetailsById(animeId, token);
 
-            // Return the fetched genres in the response body with HTTP status 200 OK
-            return ResponseEntity.ok().body(anime);
+            // Return the fetched anime details in the response body with HTTP status 200 OK
+            return ResponseEntity.ok(anime);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

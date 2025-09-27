@@ -14,7 +14,7 @@
 - GraphQL (Anilist Public API)
 - Swagger UI for API docs
 
-## API Reference
+## API Reference that uses GraphQL (Anilist Public API)
 
 #### Get This Season Animes
 

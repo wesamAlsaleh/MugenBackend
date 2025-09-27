@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class charactersDto {
+public class CharactersDto {
     private List<CharacterDto> edges; // The characters have nodes which is a list of CharacterDto
 }
 

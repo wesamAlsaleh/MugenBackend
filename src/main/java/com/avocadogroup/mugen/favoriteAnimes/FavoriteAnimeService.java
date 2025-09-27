@@ -46,4 +46,10 @@ public class FavoriteAnimeService {
         // Retrieve all favorite animes for the user and map them to an array of animeIds
         return favoriteRepository.getFavoriteAnimesByUserId((user.getId()));
     }
+
+    // Function to check if an anime is in the user's favorites
+    public boolean isFavoriteAnime(Long animeId, Long userId) {
+        // Check if a favorite anime entry exists for the user and animeId
+        return favoriteRepository.existsByUserIdAndAnimeId(userId, animeId);
+    }
 }

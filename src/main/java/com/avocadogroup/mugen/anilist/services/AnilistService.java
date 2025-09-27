@@ -2,6 +2,8 @@ package com.avocadogroup.mugen.anilist.services;
 
 import com.avocadogroup.mugen.anilist.dtos.*;
 import com.avocadogroup.mugen.anilist.enums.MediaSortBy;
+import com.avocadogroup.mugen.authentication.services.JwtService;
+import com.avocadogroup.mugen.userAnimeList.UserAnimeProgressService;
 import com.avocadogroup.mugen.users.enums.UserPreferredLanguage;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,8 @@ import java.util.Map;
 public class AnilistService {
     private final SeasonService seasonService;
     private final GraphQlService graphQlService;
+    private final JwtService jwtService;
+    private final UserAnimeProgressService userAnimeProgressService;
 
     // Function to fetch this season's anime list using graphql
     public ThisSeasonAnimesResponse fetchThisSeasonAnimes(ThisSeasonAnimesRequest request)  {
@@ -81,12 +85,19 @@ public class AnilistService {
                             romaji
                             userPreferred
                         }
+                        coverImage {
+                            color
+                            extraLarge
+                            large
+                            medium
+                        }
                         averageScore
                         meanScore
                         status
                         nextAiringEpisode {
                             airingAt
                             episode
+                            timeUntilAiring
                         }
                     }
                 }
@@ -95,7 +106,7 @@ public class AnilistService {
 
         // Prepare the variables for the query in a map {page: 1, perPage: 10, season: "SPRING", seasonYear: 2024}
         Map<String, Object> variables = new HashMap<>();
-        variables.put("page", 15); // Hardcoded to get more results for top animes
+        variables.put("perPage", 15); // Hardcoded to get more results for top animes
         variables.put("season", seasonService.getCurrentSeason());
         variables.put("seasonYear", seasonService.getCurrentYear());
         variables.put("sort", MediaSortBy.SCORE_DESC);
@@ -285,7 +296,7 @@ public class AnilistService {
     }
 
     // Function to fetch anime details by anime ID
-    public AnimeDetailsResponse fetchAnimeDetailsById(Integer animeId) {
+    public AnimeDetailsResponse fetchAnimeDetailsById(Integer animeId, String token) {
         // Prepare the GraphQL query
         String query = """
                 query Query($mediaId: Int) {
@@ -448,8 +459,25 @@ public class AnilistService {
         // Try to make the POST request to AniList GraphQL endpoint with the query and variables
         var anime = (List<AnimeDetailsDto>) graphQlService.postGraphQLRequestToAnilist(query, variables);
 
-        // Return the anime details wrapped in a AnimeDetailsResponse object
-        return new AnimeDetailsResponse(anime);
+        // Get the user id if token is provided
+        if (token != null && !token.isEmpty()) {
+            // If token is provided, and it is valid, extract user id from the token
+            if (!jwtService.isTokenExpired(token)){
+                // Extract user id from the token
+                var userId = jwtService.getUserIdFromToken(token);
+
+                System.out.println("userId from token: " + userId);
+
+                // Fetch user-specific data (like if the anime is in user's list, is it marked as favorite)
+                var userAnimeData = userAnimeProgressService.checkAnimeInUserLists(animeId, userId);
+
+                // Return the anime details along with user-specific data wrapped in a AnimeDetailsResponse object
+                return new AnimeDetailsResponse(anime, userAnimeData);
+            }
+        }
+
+        // Return the anime details without user-specific data wrapped in a AnimeDetailsResponse object
+        return new AnimeDetailsResponse(anime, null);
     }
 
     // Function to fetch studio animes

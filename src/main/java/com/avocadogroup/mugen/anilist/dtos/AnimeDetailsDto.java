@@ -36,7 +36,7 @@ public class AnimeDetailsDto {
     private Integer popularity;
     private Integer trending;
     private StudiosDto studios;
-    private charactersDto characters;
+    private CharactersDto characters;
     private boolean isAdult;
     private NextAiringEpisodeDto nextAiringEpisode;
     private String siteUrl;

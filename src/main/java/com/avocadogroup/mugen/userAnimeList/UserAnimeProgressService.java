@@ -1,20 +1,25 @@
 package com.avocadogroup.mugen.userAnimeList;
 
 import com.avocadogroup.mugen.authentication.services.AuthenticationService;
+import com.avocadogroup.mugen.favoriteAnimes.FavoriteAnimeService;
 import com.avocadogroup.mugen.userAnimeList.dtos.AddAnimeToListRequest;
 import com.avocadogroup.mugen.userAnimeList.dtos.UserListRequest;
+import com.avocadogroup.mugen.userAnimeList.dtos.UserListsDto;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class UserAnimeProgressService {
     private final AuthenticationService authenticationService;
     private final UserAnimeProgressMapper userAnimeProgressMapper;
     private final UserAnimeProgressRepository userAnimeProgressRepository;
+    private final FavoriteAnimeService favoriteAnimeService;
 
     // Function to add an anime to user anime list table
     @Transactional
@@ -60,4 +65,18 @@ public class UserAnimeProgressService {
         // Retrieve the user's anime list based on the status and user ID
         return userAnimeProgressRepository.getUserListIdsByStatus(user.getId(), request.getStatus().toString());
     }
+
+    // Function to check if an anime is in the user's list and if it's marked as favorite
+    public UserListsDto checkAnimeInUserLists(Integer animeId, Long userId) {
+        // Get the anime status if it exists in the user's list
+        var animeProgressStatus = userAnimeProgressRepository.getAnimeProgressStatus(userId, animeId)
+                .orElse(null);
+
+        // Check if the anime is in the user's favorite list
+        var isInFavoriteList = favoriteAnimeService.isFavoriteAnime(userId, Long.valueOf(animeId));
+
+        // Return the result as a UserListsDto object
+        return new UserListsDto(animeProgressStatus, isInFavoriteList);
+    }
+
 }

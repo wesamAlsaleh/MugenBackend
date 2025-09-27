@@ -16,4 +16,7 @@ public interface FavoriteAnimeRepository extends JpaRepository<FavoriteAnime, Lo
     // Custom query method to fetch the ids of all favorite animes for a specific user
     @Query("SELECT f.animeId FROM FavoriteAnime f WHERE f.user.id = :userId")
     List<Long> getFavoriteAnimesByUserId(@Param("userId") Long userId);
+
+    // Custom query method to check if a favorite anime exists for a specific user and animeId
+    boolean existsByUserIdAndAnimeId(Long userId, Long animeId);
 }

@@ -27,4 +27,8 @@ public interface UserAnimeProgressRepository extends JpaRepository<UserAnimeProg
     @Query("SELECT a FROM UserAnimeProgress a WHERE a.user.id = :userId")
     @EntityGraph(attributePaths = "user") // Eagerly fetch the associated user entity
     Object getUserList(@Param("userId") Long userId);
+
+    // Custom query to get the anime progress entry for a given user and animeId
+    @Query("SELECT a.status FROM UserAnimeProgress a WHERE a.user.id = :userId AND a.animeId = :animeId")
+    Optional<String> getAnimeProgressStatus(@Param("userId") Long userId, @Param("animeId") Integer animeId);
 }
