@@ -49,7 +49,8 @@ public class FavoriteAnimeService {
 
     // Function to check if an anime is in the user's favorites
     public boolean isFavoriteAnime(Long animeId, Long userId) {
-        // Check if a favorite anime entry exists for the user and animeId
-        return favoriteRepository.existsByUserIdAndAnimeId(userId, animeId);
+        // Return true if the entry exists, otherwise false
+        return favoriteRepository.isFavoriteAnimeByAnimeId(userId, animeId)
+                .isPresent();
     }
 }

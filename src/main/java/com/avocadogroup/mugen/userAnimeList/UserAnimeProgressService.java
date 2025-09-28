@@ -73,7 +73,7 @@ public class UserAnimeProgressService {
                 .orElse(null);
 
         // Check if the anime is in the user's favorite list
-        var isInFavoriteList = favoriteAnimeService.isFavoriteAnime(userId, Long.valueOf(animeId));
+        var isInFavoriteList = favoriteAnimeService.isFavoriteAnime(Long.valueOf(animeId), userId);
 
         // Return the result as a UserListsDto object
         return new UserListsDto(animeProgressStatus, isInFavoriteList);

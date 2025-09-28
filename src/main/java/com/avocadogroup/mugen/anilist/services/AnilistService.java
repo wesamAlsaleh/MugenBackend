@@ -466,8 +466,6 @@ public class AnilistService {
                 // Extract user id from the token
                 var userId = jwtService.getUserIdFromToken(token);
 
-                System.out.println("userId from token: " + userId);
-
                 // Fetch user-specific data (like if the anime is in user's list, is it marked as favorite)
                 var userAnimeData = userAnimeProgressService.checkAnimeInUserLists(animeId, userId);
 

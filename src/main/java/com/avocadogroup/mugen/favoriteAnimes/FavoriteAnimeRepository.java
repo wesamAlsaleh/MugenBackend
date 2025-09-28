@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface FavoriteAnimeRepository extends JpaRepository<FavoriteAnime, Long> {
     // Custom query method to find a favorite anime by user and animeId and delete it
@@ -18,5 +19,6 @@ public interface FavoriteAnimeRepository extends JpaRepository<FavoriteAnime, Lo
     List<Long> getFavoriteAnimesByUserId(@Param("userId") Long userId);
 
     // Custom query method to check if a favorite anime exists for a specific user and animeId
-    boolean existsByUserIdAndAnimeId(Long userId, Long animeId);
+    @Query("SELECT a FROM FavoriteAnime a WHERE a.animeId = :animeId AND a.user.id = :userId")
+    Optional<FavoriteAnime> isFavoriteAnimeByAnimeId(@Param("userId")Long userId, @Param("animeId") Long animeId);
 }
