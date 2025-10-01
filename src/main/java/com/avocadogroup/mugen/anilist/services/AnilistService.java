@@ -482,13 +482,12 @@ public class AnilistService {
     public StudioDetailsResponse fetchStudioDetails(StudioDetailsRequest request){
         // Prepare the GraphQL query
         String query = """ 
-                query Query($studioId: Int, $sort: [MediaSort], $page: Int, $perPage: Int) {
-                  Studio(id: $studioId) {
-                    name
-                    isAnimationStudio
-                    media(sort: $sort, page: $page, perPage: $perPage) {
-                      edges {
-                        node {
+                query Query($studioId: Int, $page: Int, $perPage: Int) {
+                    Studio(id: $studioId) {
+                      name
+                      isAnimationStudio
+                      media(page: $page, perPage: $perPage) {
+                        nodes {
                           id
                           title {
                             romaji
@@ -498,14 +497,14 @@ public class AnilistService {
                           }
                           coverImage {
                             color
-                            extraLarge
-                            large
                             medium
+                            large
+                            extraLarge
                           }
                           startDate {
-                            day
-                            month
                             year
+                            month
+                            day
                           }
                           season
                           seasonYear
@@ -515,17 +514,10 @@ public class AnilistService {
                           status
                           episodes
                           genres
-                          nextAiringEpisode {
-                            airingAt
-                            episode
-                            timeUntilAiring
-                          }
-                          siteUrl
                         }
                       }
                     }
                   }
-                }
                 """;
 
         // Prepare the variables for the query in a map
@@ -533,7 +525,6 @@ public class AnilistService {
         variables.put("page", request.getPage());
         variables.put("perPage", request.getPerPage());
         variables.put("studioId", request.getStudioId());
-        variables.put("sort", MediaSortBy.START_DATE_DESC); // Sort by newest to oldest animes
 
         // Try to make the POST request to AniList GraphQL endpoint with the query and variables
         var studioDetails = graphQlService.postGraphQLRequestToFetchStudioWithMedia(query, variables);

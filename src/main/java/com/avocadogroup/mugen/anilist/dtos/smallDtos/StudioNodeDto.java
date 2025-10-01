@@ -1,11 +1,22 @@
 package com.avocadogroup.mugen.anilist.dtos.smallDtos;
 
+import com.avocadogroup.mugen.anilist.enums.AnimeSeasons;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class StudioNodeDto {
-    private Integer id; // Unique identifier for the studio (This id is useful for fetching more details about the studio)
-    private String name;
-    private String siteUrl;
-    private Boolean isAnimationStudio;
+    private int id;
+    private TitleDto title;
+    private CoverImageDto coverImage;
+    private StartDateDto startDate;
+    private AnimeSeasons season;
+    private Integer seasonYear;
+    private int averageScore;
+    private int meanScore;
+    private String type;
+    private String status;
+    private int episodes;
+    private List<String> genres; // List of genres
 }
