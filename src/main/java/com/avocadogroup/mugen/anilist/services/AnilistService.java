@@ -483,44 +483,45 @@ public class AnilistService {
         // Prepare the GraphQL query
         String query = """ 
                 query Query($studioId: Int, $page: Int, $perPage: Int, $sort: [MediaSort]) {
-                       Studio(id: $studioId) {
-                         name
-                         isAnimationStudio
-                         media(page: $page, perPage: $perPage, sort: $sort) {
-                           edges {
-                             node {
-                               id
-                               title {
-                                 romaji
-                                 english
-                                 native
-                                 userPreferred
-                               }
-                               type
-                               status
-                               startDate {
-                                 day
-                                 month
-                                 year
-                               }
-                               season
-                               seasonYear
-                               episodes
-                               coverImage {
-                                 extraLarge
-                                 large
-                                 medium
-                                 color
-                               }
-                               genres
-                               averageScore
-                               meanScore
-                             }
-                             isMainStudio
-                           }
-                         }
-                       }
-                     }
+                        Studio(id: $studioId) {
+                          name
+                          isAnimationStudio
+                          media(page: $page, perPage: $perPage, sort: $sort) {
+                            edges {
+                              node {
+                                id
+                                title {
+                                  romaji
+                                  english
+                                  native
+                                  userPreferred
+                                }
+                                type
+                                status
+                                startDate {
+                                  day
+                                  month
+                                  year
+                                }
+                                season
+                                seasonYear
+                                episodes
+                                coverImage {
+                                  extraLarge
+                                  large
+                                  medium
+                                  color
+                                }
+                                genres
+                                averageScore
+                                meanScore
+                                format
+                              }
+                              isMainStudio
+                            }
+                          }
+                        }
+                      }
                 """;
 
         // Prepare the variables for the query in a map

@@ -1,6 +1,7 @@
 package com.avocadogroup.mugen.anilist.dtos.smallDtos;
 
 import com.avocadogroup.mugen.anilist.enums.AnimeSeasons;
+import com.avocadogroup.mugen.anilist.enums.MediaFormat;
 import com.avocadogroup.mugen.anilist.enums.MediaStatus;
 import com.avocadogroup.mugen.anilist.enums.MediaTypes;
 import lombok.Data;
@@ -19,6 +20,7 @@ public class AnimeNodeDto {
     private Integer meanScore;
     private MediaTypes type;
     private MediaStatus status;
+    private MediaFormat format;
     private Integer episodes;
     private List<String> genres;
 }
