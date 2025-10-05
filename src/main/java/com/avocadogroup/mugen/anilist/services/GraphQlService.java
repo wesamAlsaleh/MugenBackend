@@ -1,6 +1,7 @@
 package com.avocadogroup.mugen.anilist.services;
 
 import com.avocadogroup.mugen.anilist.dtos.StudioDto;
+import com.avocadogroup.mugen.anilist.dtos.smallDtos.StudioEdgeDto;
 import com.avocadogroup.mugen.configs.AnilistConfig;
 import com.avocadogroup.mugen.global.exceptions.BadRequestException;
 import com.avocadogroup.mugen.global.exceptions.InternalServerErrorException;
@@ -135,7 +136,22 @@ public class GraphQlService {
             JsonNode studioNode = root.path("data").path("Studio");
 
             // Convert the "Studio" node to a StudioDto object and return it
-            return objectMapper.convertValue(studioNode, StudioDto.class);
+            var studioDto = objectMapper.convertValue(studioNode, StudioDto.class);
+
+            // Filter out media that contain ("isMainStudio": false)
+            if (studioDto.getMedia() != null && studioDto.getMedia().getEdges() != null) {
+                // Filter the edges
+                List<StudioEdgeDto> filteredEdges = studioDto.getMedia().getEdges()
+                        .stream()
+                        .filter(StudioEdgeDto::getIsMainStudio) // Keep only edges where node.isMainStudio is true
+                        .toList();
+
+                // Update the media edges with the filtered list
+                studioDto.getMedia().setEdges(filteredEdges);
+            }
+
+            // Return the StudioDto object containing studio details and filtered media list
+            return studioDto;
         } catch (Exception e) {
             throw new BadRequestException(e.getMessage()); // TODO: Log the error message and display to the client "Error fetching data from Anilist"
         }

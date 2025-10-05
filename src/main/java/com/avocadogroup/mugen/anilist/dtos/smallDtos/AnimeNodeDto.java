@@ -21,6 +21,4 @@ public class AnimeNodeDto {
     private MediaStatus status;
     private Integer episodes;
     private List<String> genres;
-    private NextAiringEpisodeDto nextAiringEpisode;
-    private String siteUrl;
 }

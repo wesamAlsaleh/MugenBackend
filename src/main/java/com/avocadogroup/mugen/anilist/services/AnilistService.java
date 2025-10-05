@@ -483,47 +483,51 @@ public class AnilistService {
         // Prepare the GraphQL query
         String query = """ 
                 query Query($studioId: Int, $page: Int, $perPage: Int, $sort: [MediaSort]) {
-                     Studio(id: $studioId) {
-                       name
-                       isAnimationStudio
-                       media(page: $page, perPage: $perPage, sort: $sort) {
-                         nodes {
-                           id
-                           title {
-                             romaji
-                             english
-                             native
-                             userPreferred
+                       Studio(id: $studioId) {
+                         name
+                         isAnimationStudio
+                         media(page: $page, perPage: $perPage, sort: $sort) {
+                           edges {
+                             node {
+                               id
+                               title {
+                                 romaji
+                                 english
+                                 native
+                                 userPreferred
+                               }
+                               type
+                               status
+                               startDate {
+                                 day
+                                 month
+                                 year
+                               }
+                               season
+                               seasonYear
+                               episodes
+                               coverImage {
+                                 extraLarge
+                                 large
+                                 medium
+                                 color
+                               }
+                               genres
+                               averageScore
+                               meanScore
+                             }
+                             isMainStudio
                            }
-                           coverImage {
-                             color
-                             medium
-                             large
-                             extraLarge
-                           }
-                           startDate {
-                             year
-                             month
-                             day
-                           }
-                           season
-                           seasonYear
-                           averageScore
-                           meanScore
-                           type
-                           status
-                           episodes
-                           genres
                          }
                        }
                      }
-                   }
                 """;
 
         // Prepare the variables for the query in a map
         Map<String, Object> variables = new HashMap<>();
         variables.put("page", request.getPage());
-        variables.put("perPage", request.getPerPage());
+//        variables.put("perPage", request.getPerPage());
+        variables.put("perPage", 30); // Hardcoded to 30 to over-fetch, as studio might have many animes, Slice down to 10 in your frontend
         variables.put("studioId", request.getStudioId());
         variables.put("sort", MediaSortBy.START_DATE_DESC); // Sort by start date by default
 

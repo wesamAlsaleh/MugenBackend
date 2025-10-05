@@ -6,10 +6,10 @@ import java.util.List;
 
 @Data
 public class StudioMediaDto {
-    private List<StudioNodeDto> nodes; // List of studio nodes
+    private List<StudioEdgeDto> edges; // List of studio edges
 }
 
 
-// Note that, each node contains basic anime information like id, title, coverImage, etc.
+
 
 
